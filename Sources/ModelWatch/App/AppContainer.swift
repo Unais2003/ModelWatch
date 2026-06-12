@@ -14,12 +14,18 @@ struct AppContainer {
                 for: ActivitySession.self,
                 Subscription.self
             )
+            let context = ModelContext(modelContainer)
+
+            SampleData.seedIfNeeded(context: context)
+
+            let sessionStore = SwiftDataActivitySessionStore(context: context)
+            let subscriptionStore = SwiftDataSubscriptionStore(context: context)
 
             return AppContainer(
                 modelContainer: modelContainer,
                 activityTrackingService: NoOpActivityTrackingService(),
-                analyticsService: NoOpAnalyticsService(),
-                subscriptionService: NoOpSubscriptionService(),
+                analyticsService: StoreBasedAnalyticsService(sessionStore: sessionStore),
+                subscriptionService: StoreBasedSubscriptionService(subscriptionStore: subscriptionStore),
                 notificationSchedulingService: NoOpNotificationSchedulingService()
             )
         } catch {

@@ -20,7 +20,13 @@ struct DashboardView: View {
             }
             .navigationSplitViewColumnWidth(min: 180, ideal: 220)
         } detail: {
-            DashboardDetailView(destination: selectedDestination.wrappedValue ?? .overview)
+            DashboardDetailView(
+                destination: selectedDestination.wrappedValue ?? .overview,
+                viewModel: viewModel
+            )
+        }
+        .task {
+            await viewModel.loadData()
         }
     }
 }

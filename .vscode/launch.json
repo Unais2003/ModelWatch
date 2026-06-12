@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:ModelWatch}",
+            "name": "Debug ModelWatch",
+            "target": "ModelWatch",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug ModelWatch"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:ModelWatch}",
+            "name": "Release ModelWatch",
+            "target": "ModelWatch",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release ModelWatch"
+        }
+    ]
+}

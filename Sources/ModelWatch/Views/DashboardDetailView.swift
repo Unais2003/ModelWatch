@@ -25,8 +25,7 @@ private struct OverviewContent: View {
             VStack(alignment: .leading, spacing: 20) {
                 header
                 summaryCards
-                usageChart
-                appBreakdown
+                analyticsContent
             }
             .padding(24)
         }
@@ -39,7 +38,7 @@ private struct OverviewContent: View {
                 Text("Usage Overview")
                     .font(.title)
                     .fontWeight(.semibold)
-                Text(formattedTotalTime)
+                Text(analyticsSubtitle)
                     .font(.title2)
                     .foregroundStyle(.secondary)
             }
@@ -61,11 +60,83 @@ private struct OverviewContent: View {
             ?? "0 min"
     }
 
+    private var analyticsSubtitle: String {
+        switch viewModel.analyticsState {
+        case .idle, .loading:
+            "Loading usage…"
+        case .loaded:
+            formattedTotalTime
+        case .empty:
+            "No activity recorded"
+        case .failed:
+            "Usage unavailable"
+        }
+    }
+
+    private var totalTimeValue: String {
+        switch viewModel.analyticsState {
+        case .loaded:
+            formattedTotalTime
+        case .empty:
+            "0 min"
+        case .idle, .loading, .failed:
+            "—"
+        }
+    }
+
+    private var appCountValue: String {
+        switch viewModel.analyticsState {
+        case .loaded:
+            "\(viewModel.usageSummary.trackedApplicationCount)"
+        case .empty:
+            "0"
+        case .idle, .loading, .failed:
+            "—"
+        }
+    }
+
+    private var subscriptionCostValue: String {
+        switch viewModel.subscriptionsState {
+        case .loaded:
+            "$\(String(format: "%.0f", viewModel.totalMonthlyCost))/mo"
+        case .empty:
+            "$0/mo"
+        case .idle, .loading, .failed:
+            "—"
+        }
+    }
+
     private var summaryCards: some View {
         HStack(spacing: 16) {
-            SummaryCard(title: "Total Time", value: formattedTotalTime, icon: "clock")
-            SummaryCard(title: "Apps Used", value: "\(viewModel.usageSummary.trackedApplicationCount)", icon: "app.badge")
-            SummaryCard(title: "Subscriptions", value: "$\(String(format: "%.0f", viewModel.totalMonthlyCost))/mo", icon: "creditcard")
+            SummaryCard(title: "Total Time", value: totalTimeValue, icon: "clock")
+            SummaryCard(title: "Apps Used", value: appCountValue, icon: "app.badge")
+            SummaryCard(title: "Subscriptions", value: subscriptionCostValue, icon: "creditcard")
+        }
+    }
+
+    @ViewBuilder
+    private var analyticsContent: some View {
+        switch viewModel.analyticsState {
+        case .idle, .loading:
+            DashboardLoadingView(title: "Loading usage…")
+        case .loaded:
+            usageChart
+            appBreakdown
+        case .empty:
+            DashboardStatusView(
+                title: "No Usage Yet",
+                message: "Tracked application activity will appear here.",
+                systemImage: "chart.bar"
+            )
+        case let .failed(message):
+            DashboardStatusView(
+                title: "Usage Unavailable",
+                message: message,
+                systemImage: "exclamationmark.triangle",
+                actionTitle: "Try Again"
+            ) {
+                Task { await viewModel.reloadAnalytics() }
+            }
         }
     }
 
@@ -124,54 +195,92 @@ private struct SubscriptionsContent: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Subscriptions")
-                        .font(.title)
-                        .fontWeight(.semibold)
-                    Text("$\(String(format: "%.2f", viewModel.totalMonthlyCost)) / month total")
-                        .font(.title2)
-                        .foregroundStyle(.secondary)
-                }
-
-                if viewModel.subscriptions.isEmpty {
-                    Text("No subscriptions added yet.")
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.vertical, 60)
-                } else {
-                    ForEach(viewModel.subscriptions, id: \.id) { sub in
-                        VStack(spacing: 0) {
-                            HStack {
-                                Label(sub.serviceName, systemImage: "creditcard.fill")
-                                    .font(.headline)
-                                Spacer()
-                                Text("$\(String(format: "%.2f", sub.monthlyCost))/mo")
-                                    .fontWeight(.semibold)
-                                    .monospacedDigit()
-                            }
-                            .padding(.vertical, 12)
-                            .padding(.horizontal, 16)
-
-                            if let renewal = sub.renewalDate {
-                                HStack {
-                                    Text("Next renewal")
-                                        .foregroundStyle(.secondary)
-                                    Spacer()
-                                    Text(renewal, style: .date)
-                                        .foregroundStyle(.secondary)
-                                }
-                                .padding(.horizontal, 16)
-                                .padding(.bottom, 12)
-                            }
-                        }
-                        .background(.background.secondary)
-                        .clipShape(RoundedRectangle(cornerRadius: 10))
-                    }
-                }
+                header
+                subscriptionsContent
             }
             .padding(24)
         }
         .navigationTitle("Subscriptions")
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Subscriptions")
+                .font(.title)
+                .fontWeight(.semibold)
+            Text(subscriptionSubtitle)
+                .font(.title2)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var subscriptionSubtitle: String {
+        switch viewModel.subscriptionsState {
+        case .idle, .loading:
+            "Loading subscriptions…"
+        case .loaded:
+            "$\(String(format: "%.2f", viewModel.totalMonthlyCost)) / month total"
+        case .empty:
+            "No active subscriptions"
+        case .failed:
+            "Subscriptions unavailable"
+        }
+    }
+
+    @ViewBuilder
+    private var subscriptionsContent: some View {
+        switch viewModel.subscriptionsState {
+        case .idle, .loading:
+            DashboardLoadingView(title: "Loading subscriptions…")
+        case .loaded:
+            subscriptionList
+        case .empty:
+            DashboardStatusView(
+                title: "No Subscriptions",
+                message: "Subscriptions you add will appear here.",
+                systemImage: "creditcard"
+            )
+        case let .failed(message):
+            DashboardStatusView(
+                title: "Subscriptions Unavailable",
+                message: message,
+                systemImage: "exclamationmark.triangle",
+                actionTitle: "Try Again"
+            ) {
+                Task { await viewModel.reloadSubscriptions() }
+            }
+        }
+    }
+
+    private var subscriptionList: some View {
+        ForEach(viewModel.subscriptions, id: \.id) { subscription in
+            VStack(spacing: 0) {
+                HStack {
+                    Label(subscription.serviceName, systemImage: "creditcard.fill")
+                        .font(.headline)
+                    Spacer()
+                    Text("$\(String(format: "%.2f", subscription.monthlyCost))/mo")
+                        .fontWeight(.semibold)
+                        .monospacedDigit()
+                }
+                .padding(.vertical, 12)
+                .padding(.horizontal, 16)
+
+                if let renewalDate = subscription.renewalDate {
+                    HStack {
+                        Text("Next renewal")
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text(renewalDate, style: .date)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 12)
+                }
+            }
+            .background(.background.secondary)
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+        }
     }
 }
 
@@ -214,5 +323,44 @@ private struct SummaryCard: View {
         .padding(16)
         .background(.background.secondary)
         .clipShape(RoundedRectangle(cornerRadius: 10))
+    }
+}
+
+private struct DashboardLoadingView: View {
+    let title: String
+
+    var body: some View {
+        ProgressView(title)
+            .frame(maxWidth: .infinity, minHeight: 180)
+    }
+}
+
+private struct DashboardStatusView: View {
+    let title: String
+    let message: String
+    let systemImage: String
+    var actionTitle: String?
+    var action: (() -> Void)?
+
+    var body: some View {
+        VStack(spacing: 10) {
+            Image(systemName: systemImage)
+                .font(.largeTitle)
+                .foregroundStyle(.secondary)
+            Text(title)
+                .font(.headline)
+            Text(message)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
+            if let actionTitle, let action {
+                Button(actionTitle, action: action)
+                    .padding(.top, 4)
+            }
+        }
+        .frame(maxWidth: .infinity, minHeight: 180)
+        .padding(20)
+        .background(.background.secondary)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }

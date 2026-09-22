@@ -1,6 +1,7 @@
 import XCTest
 @testable import ModelWatch
 
+@MainActor
 final class ArchitectureTests: XCTestCase {
     func testNoOpActivityTrackingStartsInactive() {
         let service = NoOpActivityTrackingService()

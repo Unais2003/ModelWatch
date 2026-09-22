@@ -1,3 +1,4 @@
+@MainActor
 protocol SubscriptionService {
     func activeSubscriptions() async throws -> [Subscription]
 }

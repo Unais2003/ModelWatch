@@ -1,11 +1,12 @@
 import Foundation
 
-struct AppUsage: Identifiable, Equatable {
+struct AppUsage: Identifiable, Equatable, Sendable {
     let applicationName: String
     let duration: TimeInterval
     var id: String { applicationName }
 }
 
+@MainActor
 protocol AnalyticsService {
     func usageSummary(for range: AnalyticsRange) async throws -> UsageSummary
     func usageByApplication(for range: AnalyticsRange) async throws -> [AppUsage]

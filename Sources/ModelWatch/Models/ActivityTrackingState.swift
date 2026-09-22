@@ -1,4 +1,4 @@
-struct ActivityTrackingState: Equatable {
+struct ActivityTrackingState: Equatable, Sendable {
     let isMonitoring: Bool
     let activeApplicationName: String?
 

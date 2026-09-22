@@ -16,8 +16,6 @@ struct AppContainer {
             )
             let context = ModelContext(modelContainer)
 
-            SampleData.seedIfNeeded(context: context)
-
             let sessionStore = SwiftDataActivitySessionStore(context: context)
             let subscriptionStore = SwiftDataSubscriptionStore(context: context)
 

@@ -7,9 +7,10 @@ and upcoming renewal dates.
 
 ## Current implementation
 
-SwiftData persistence and a read-only subscription list exist. Four sample
-subscriptions are inserted on first launch. There is no create, edit,
-deactivate, or delete interface yet.
+SwiftData persistence and a read-only subscription list exist. Sample
+subscriptions are no longer inserted on first launch, so the live application
+starts with an explicit empty state. There is no create, edit, deactivate, or
+delete interface yet.
 
 ## MVP workflows
 
@@ -53,4 +54,3 @@ provider, rate timestamp, failure behavior, and separate privacy review.
 Renewal notifications may follow subscription CRUD. Notification authorization
 must be requested in context when the user enables reminders, not at first
 launch without explanation.
-

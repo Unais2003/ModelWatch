@@ -8,8 +8,9 @@ and monthly summaries.
 ## Current implementation
 
 The dashboard can fetch sessions from the start of the selected calendar range,
-sum completed durations, group them by application name, and render a bar chart.
-The application currently displays randomly seeded demonstration sessions.
+sum completed positive durations, group them by application name, and render a
+bar chart. The live application starts without demonstration sessions because
+real activity monitoring is not implemented yet.
 
 ## Required MVP behavior
 
@@ -48,4 +49,3 @@ request must never replace the result for the currently selected range.
 Historical trends, comparisons, filters, export, and cost-per-hour analysis are
 outside the first analytics milestone. They should build on the same tested
 range-intersection rules.
-

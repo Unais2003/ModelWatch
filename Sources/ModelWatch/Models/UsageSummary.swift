@@ -1,6 +1,6 @@
 import Foundation
 
-struct UsageSummary: Equatable {
+struct UsageSummary: Equatable, Sendable {
     let range: AnalyticsRange
     let totalDuration: TimeInterval
     let trackedApplicationCount: Int

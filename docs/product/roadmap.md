@@ -5,12 +5,14 @@ omitted until the core tracking behavior has been validated.
 
 ## Phase 0: Foundation
 
-- Maintain the project documentation structure.
-- Remove live random sample seeding; retain deterministic fixtures for previews
+- [x] Maintain the project documentation structure.
+- [x] Remove live random sample seeding; retain deterministic fixtures for previews
   and tests.
-- Resolve Swift concurrency isolation warnings.
-- Add explicit loading and error presentation.
-- Introduce deterministic clock and calendar dependencies where required.
+- [x] Resolve Swift concurrency isolation warnings.
+- [x] Add explicit loading, empty, and error presentation.
+- [x] Prevent stale dashboard requests from replacing the selected range.
+- [x] Add initial analytics and dashboard state tests.
+- [ ] Introduce deterministic clock and calendar dependencies where required.
 
 Exit criterion: the existing prototype builds without warnings and never
 presents demonstration data as real user activity.
@@ -66,4 +68,3 @@ Exit criterion: ModelWatch is suitable for a signed beta distribution.
 
 These opportunities require separate privacy, security, and product decisions
 and must not complicate the local-first MVP prematurely.
-

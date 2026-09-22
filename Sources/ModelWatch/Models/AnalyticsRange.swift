@@ -1,4 +1,4 @@
-enum AnalyticsRange: String, CaseIterable, Identifiable {
+enum AnalyticsRange: String, CaseIterable, Identifiable, Sendable {
     case day
     case week
     case month

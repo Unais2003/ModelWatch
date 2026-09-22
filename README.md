@@ -54,7 +54,16 @@ ModelWatch aims to provide a centralized dashboard that helps users understand h
 
 ## Project Status
 
-Early Development (MVP)
+Early Development (MVP). The native dashboard and local data layer are in
+place; real activity monitoring and subscription management are not yet
+implemented.
+
+---
+
+## Documentation
+
+Product requirements, architecture, feature behavior, privacy decisions, and
+engineering guides are maintained in the [documentation index](docs/README.md).
 
 ---
 

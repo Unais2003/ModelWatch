@@ -1,9 +1,34 @@
-protocol ActivityTrackingService {
-    func currentState() -> ActivityTrackingState
+@MainActor
+protocol ActivityTrackingService: AnyObject {
+    var state: ActivityTrackingState { get }
+    var isMonitoringEnabled: Bool { get }
+    var trackedApplications: [TrackedApplication] { get }
+
+    func start() async
+    func prepareForTermination() async
+    func setMonitoringEnabled(_ isEnabled: Bool) async
+    func addTrackedApplication(_ application: TrackedApplication) async
+    func removeTrackedApplication(bundleIdentifier: String) async
 }
 
-struct NoOpActivityTrackingService: ActivityTrackingService {
-    func currentState() -> ActivityTrackingState {
-        .inactive
+@MainActor
+final class NoOpActivityTrackingService: ActivityTrackingService {
+    let state = ActivityTrackingState.inactive
+    let isMonitoringEnabled = false
+    let trackedApplications: [TrackedApplication] = []
+
+    func start() async {
+    }
+
+    func prepareForTermination() async {
+    }
+
+    func setMonitoringEnabled(_ isEnabled: Bool) async {
+    }
+
+    func addTrackedApplication(_ application: TrackedApplication) async {
+    }
+
+    func removeTrackedApplication(bundleIdentifier: String) async {
     }
 }

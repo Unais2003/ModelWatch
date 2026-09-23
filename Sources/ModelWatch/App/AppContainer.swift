@@ -18,10 +18,21 @@ struct AppContainer {
 
             let sessionStore = SwiftDataActivitySessionStore(context: context)
             let subscriptionStore = SwiftDataSubscriptionStore(context: context)
+            let trackingPreferencesStore = UserDefaultsActivityTrackingPreferencesStore()
+            let activityTrackingService = WorkspaceActivityTrackingService(
+                sessionStore: sessionStore,
+                preferencesStore: trackingPreferencesStore,
+                eventSource: NSWorkspaceActivityEventSource(),
+                dateProvider: SystemDateProvider()
+            )
+
+            Task {
+                await activityTrackingService.start()
+            }
 
             return AppContainer(
                 modelContainer: modelContainer,
-                activityTrackingService: NoOpActivityTrackingService(),
+                activityTrackingService: activityTrackingService,
                 analyticsService: StoreBasedAnalyticsService(sessionStore: sessionStore),
                 subscriptionService: StoreBasedSubscriptionService(subscriptionStore: subscriptionStore),
                 notificationSchedulingService: NoOpNotificationSchedulingService()

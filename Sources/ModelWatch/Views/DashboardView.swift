@@ -3,6 +3,7 @@ import SwiftUI
 struct DashboardView: View {
     let viewModel: DashboardViewModel
     @SceneStorage("selectedDestination") private var selectedDestinationRawValue = AppDestination.overview.rawValue
+    @AppStorage("hasCompletedPrivacyOnboarding") private var hasCompletedPrivacyOnboarding = false
 
     private var selectedDestination: Binding<AppDestination?> {
         Binding {
@@ -27,6 +28,20 @@ struct DashboardView: View {
         }
         .task {
             await viewModel.loadData()
+        }
+        .sheet(
+            isPresented: Binding(
+                get: { !hasCompletedPrivacyOnboarding },
+                set: { isPresented in
+                    if !isPresented {
+                        hasCompletedPrivacyOnboarding = true
+                    }
+                }
+            )
+        ) {
+            PrivacyOnboardingView {
+                hasCompletedPrivacyOnboarding = true
+            }
         }
     }
 }

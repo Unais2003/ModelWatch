@@ -7,9 +7,14 @@ locally stored data.
 
 ## Current implementation
 
-The native Settings scene contains “Launch at login” and “Show menu bar status”
-toggles backed by `AppStorage`. The stored values do not yet control application
-behavior. The dashboard also contains a separate placeholder Settings page.
+The native Settings scene lets users select macOS application bundles, remove
+approved applications, and enable or pause activity monitoring. Monitoring is
+off by default, stops automatically when the last approved application is
+removed, and displays persistence failures. A first-run privacy explanation
+describes the collected and excluded data before directing users to Settings.
+“Launch at login” and “Show menu bar status” remain `AppStorage` values that do
+not yet control system behavior. The dashboard also contains a separate
+placeholder Settings page.
 
 ## MVP settings
 
@@ -47,4 +52,3 @@ it should not maintain a second disconnected implementation.
 Preferences that invoke system behavior must report registration or permission
 failures. Saving a boolean alone is not sufficient evidence that the requested
 behavior is active.
-

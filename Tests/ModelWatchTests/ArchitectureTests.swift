@@ -6,7 +6,7 @@ final class ArchitectureTests: XCTestCase {
     func testNoOpActivityTrackingStartsInactive() {
         let service = NoOpActivityTrackingService()
 
-        XCTAssertEqual(service.currentState(), .inactive)
+        XCTAssertEqual(service.state, .inactive)
     }
 
     func testNoOpAnalyticsReturnsEmptySummaryForRange() async throws {

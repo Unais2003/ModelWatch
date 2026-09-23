@@ -12,19 +12,22 @@ omitted until the core tracking behavior has been validated.
 - [x] Add explicit loading, empty, and error presentation.
 - [x] Prevent stale dashboard requests from replacing the selected range.
 - [x] Add initial analytics and dashboard state tests.
-- [ ] Introduce deterministic clock and calendar dependencies where required.
+- [x] Introduce a deterministic clock dependency for activity tracking.
+- [ ] Introduce deterministic calendar behavior for analytics range boundaries.
 
 Exit criterion: the existing prototype builds without warnings and never
 presents demonstration data as real user activity.
 
 ## Phase 1: Activity tracking
 
-- Implement frontmost-application observation.
-- Define and persist the user-approved application list.
-- Implement the activity-session state machine.
-- Handle switching, pause/resume, sleep/wake, lock/unlock, and termination.
-- Add first-run privacy onboarding.
-- Cover state transitions and recovery with automated tests.
+- [x] Implement frontmost-application observation.
+- [x] Define and persist the user-approved application list.
+- [x] Implement the activity-session state machine.
+- [x] Handle switching, pause/resume, sleep/wake, session changes, and termination.
+- [x] Add explicit application selection and monitoring controls.
+- [x] Add first-run privacy onboarding.
+- [ ] Verify lock/unlock behavior across supported macOS versions.
+- [x] Cover state transitions and recovery with automated tests.
 
 Exit criterion: a user can run ModelWatch for a day and obtain accurate,
 inspectable sessions without granting unnecessary permissions.

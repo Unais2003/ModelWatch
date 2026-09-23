@@ -15,6 +15,10 @@ Implementation must verify permission behavior on every supported macOS
 version. If the selected APIs do not require a protected permission, the app
 must not request Accessibility or Screen Recording proactively.
 
+The current implementation uses `NSWorkspace` application activation, sleep,
+wake, and session lifecycle notifications. It does not request Accessibility or
+Screen Recording permission.
+
 ## Accessibility
 
 Accessibility permission is not part of the MVP requirement. It would become
@@ -43,4 +47,3 @@ succeeded.
 Before release, document and verify required entitlements, sandbox behavior,
 usage descriptions, signing, and notarization. Add permissions only for shipped
 features and remove obsolete declarations.
-

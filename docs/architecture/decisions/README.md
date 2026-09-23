@@ -4,6 +4,10 @@ Architecture decision records (ADRs) capture consequential technical choices
 that future contributors need to understand. They complement code and should be
 short enough to review with the change they describe.
 
+## Records
+
+- [ADR-0001: Observe frontmost applications with NSWorkspace](0001-observe-frontmost-app-with-nsworkspace.md)
+
 ## When to add an ADR
 
 Create an ADR when a decision:
@@ -53,4 +57,3 @@ What credible alternatives were rejected, and why?
 ```
 
 When an ADR is replaced, preserve it and link to the superseding record.
-

@@ -30,4 +30,24 @@ struct SwiftDataActivitySessionStore: ActivitySessionStore {
         context.insert(session)
         try context.save()
     }
+
+    func fetchUnfinishedSessions() async throws -> [ActivitySession] {
+        let predicate = #Predicate<ActivitySession> { session in
+            session.endedAt == nil
+        }
+        let descriptor = FetchDescriptor(
+            predicate: predicate,
+            sortBy: [SortDescriptor(\.startedAt, order: .reverse)]
+        )
+        return try context.fetch(descriptor)
+    }
+
+    func update(_ session: ActivitySession) async throws {
+        try context.save()
+    }
+
+    func delete(_ session: ActivitySession) async throws {
+        context.delete(session)
+        try context.save()
+    }
 }

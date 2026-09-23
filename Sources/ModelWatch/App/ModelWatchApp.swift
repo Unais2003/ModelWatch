@@ -14,6 +14,9 @@ struct ModelWatchApp: App {
                     subscriptionService: appContainer.subscriptionService
                 )
             )
+            .onAppear {
+                appDelegate.activityTrackingService = appContainer.activityTrackingService
+            }
             .modelContainer(appContainer.modelContainer)
         }
         .defaultSize(width: 980, height: 640)
@@ -31,7 +34,11 @@ struct ModelWatchApp: App {
         .menuBarExtraStyle(.menu)
 
         Settings {
-            SettingsView(viewModel: SettingsViewModel())
+            SettingsView(
+                viewModel: SettingsViewModel(
+                    activityTrackingService: appContainer.activityTrackingService
+                )
+            )
         }
     }
 }

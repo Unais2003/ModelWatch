@@ -11,6 +11,13 @@ struct MenuBarView: View {
 
         Divider()
 
+        Button(viewModel.monitoringActionTitle) {
+            viewModel.toggleMonitoring()
+        }
+        .disabled(!viewModel.canToggleMonitoring)
+
+        Divider()
+
         Button("Open Dashboard") {
             openWindow(id: AppWindowID.dashboard.rawValue)
         }

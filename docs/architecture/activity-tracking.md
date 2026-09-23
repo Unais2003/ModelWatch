@@ -5,6 +5,14 @@
 Record trustworthy usage intervals for applications explicitly enabled by the
 user while collecting the least information necessary.
 
+## Current implementation
+
+ModelWatch observes `NSWorkspace` activation and lifecycle notifications with an
+event-driven service. Monitoring is disabled by default and cannot be enabled
+until the user selects at least one macOS application bundle. Approved
+applications and the monitoring preference are stored in local user defaults;
+activity sessions are stored in SwiftData.
+
 ## System boundary
 
 The tracker needs only application activation and relevant system lifecycle
@@ -51,6 +59,9 @@ earliest reliable lifecycle timestamp available, or discard it when no reliable
 end can be established. It must not assume the application remained active for
 the entire time ModelWatch was not running.
 
+The current conservative policy deletes unfinished sessions during startup.
+This avoids counting the period after an unexpected termination as usage.
+
 ## Application identity
 
 Bundle identifier is the stable identity. Display names may change and should
@@ -93,12 +104,15 @@ Pause/resume must be available without opening the dashboard.
 - Change the approved application list while tracking
 - Receive out-of-order or equal timestamps
 
-## Open decisions
+## Decisions
 
-- Exact recovery policy for unfinished sessions
-- Where approved application configuration is stored
-- Whether very short sessions should be filtered and at what threshold
-- Whether monitoring begins automatically after onboarding
+- Unfinished crash sessions are discarded during startup.
+- Approved applications and monitoring state use local user defaults.
+- Monitoring is off by default and requires at least one approved application.
+- Positive-duration sessions are retained without a minimum-duration filter.
 
-Resolve these decisions before calling activity tracking complete.
+## Remaining work
 
+- Verify lock/unlock notification behavior on every supported macOS version.
+- Refresh an open dashboard when a tracked session closes.
+- Exercise the complete lifecycle using a signed application build.

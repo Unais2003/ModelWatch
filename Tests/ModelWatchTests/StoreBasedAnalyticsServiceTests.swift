@@ -64,7 +64,16 @@ private struct AnalyticsSessionStoreStub: ActivitySessionStore {
         sessions
     }
 
+    func fetchUnfinishedSessions() async throws -> [ActivitySession] {
+        sessions.filter { $0.endedAt == nil }
+    }
+
     func save(_ session: ActivitySession) async throws {
     }
-}
 
+    func update(_ session: ActivitySession) async throws {
+    }
+
+    func delete(_ session: ActivitySession) async throws {
+    }
+}

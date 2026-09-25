@@ -11,7 +11,8 @@ struct ModelWatchApp: App {
             DashboardView(
                 viewModel: DashboardViewModel(
                     analyticsService: appContainer.analyticsService,
-                    subscriptionService: appContainer.subscriptionService
+                    subscriptionService: appContainer.subscriptionService,
+                    activityTrackingService: appContainer.activityTrackingService
                 )
             )
             .onAppear {

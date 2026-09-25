@@ -12,9 +12,9 @@ final class ArchitectureTests: XCTestCase {
     func testNoOpAnalyticsReturnsEmptySummaryForRange() async throws {
         let service = NoOpAnalyticsService()
 
-        let summary = try await service.usageSummary(for: .week)
+        let snapshot = try await service.analytics(for: .week)
 
-        XCTAssertEqual(summary, .empty(range: .week))
+        XCTAssertEqual(snapshot, .empty(range: .week))
     }
 
     func testNoOpSubscriptionsReturnEmptyCollection() async throws {

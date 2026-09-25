@@ -19,11 +19,12 @@ struct AppContainer {
             let sessionStore = SwiftDataActivitySessionStore(context: context)
             let subscriptionStore = SwiftDataSubscriptionStore(context: context)
             let trackingPreferencesStore = UserDefaultsActivityTrackingPreferencesStore()
+            let dateProvider = SystemDateProvider()
             let activityTrackingService = WorkspaceActivityTrackingService(
                 sessionStore: sessionStore,
                 preferencesStore: trackingPreferencesStore,
                 eventSource: NSWorkspaceActivityEventSource(),
-                dateProvider: SystemDateProvider()
+                dateProvider: dateProvider
             )
 
             Task {
@@ -33,7 +34,10 @@ struct AppContainer {
             return AppContainer(
                 modelContainer: modelContainer,
                 activityTrackingService: activityTrackingService,
-                analyticsService: StoreBasedAnalyticsService(sessionStore: sessionStore),
+                analyticsService: StoreBasedAnalyticsService(
+                    sessionStore: sessionStore,
+                    dateProvider: dateProvider
+                ),
                 subscriptionService: StoreBasedSubscriptionService(subscriptionStore: subscriptionStore),
                 notificationSchedulingService: NoOpNotificationSchedulingService()
             )

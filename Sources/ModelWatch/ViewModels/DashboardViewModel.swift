@@ -11,6 +11,7 @@ final class DashboardViewModel {
 
     private let analyticsService: any AnalyticsService
     private let subscriptionService: any SubscriptionService
+    private let activityTrackingService: any ActivityTrackingService
 
     var selectedRange: AnalyticsRange = .day {
         didSet { scheduleAnalyticsLoad() }
@@ -23,6 +24,10 @@ final class DashboardViewModel {
     private(set) var analyticsState: DashboardLoadState = .idle
     private(set) var subscriptionsState: DashboardLoadState = .idle
 
+    var analyticsRevision: Int {
+        activityTrackingService.analyticsRevision
+    }
+
     @ObservationIgnored
     private var analyticsLoadTask: Task<Void, Never>?
 
@@ -34,10 +39,23 @@ final class DashboardViewModel {
 
     init(
         analyticsService: any AnalyticsService,
-        subscriptionService: any SubscriptionService
+        subscriptionService: any SubscriptionService,
+        activityTrackingService: any ActivityTrackingService
     ) {
         self.analyticsService = analyticsService
         self.subscriptionService = subscriptionService
+        self.activityTrackingService = activityTrackingService
+    }
+
+    convenience init(
+        analyticsService: any AnalyticsService,
+        subscriptionService: any SubscriptionService
+    ) {
+        self.init(
+            analyticsService: analyticsService,
+            subscriptionService: subscriptionService,
+            activityTrackingService: NoOpActivityTrackingService()
+        )
     }
 
     func loadData() async {
@@ -56,6 +74,19 @@ final class DashboardViewModel {
         await loadSubscriptions()
     }
 
+    func refreshActiveSessionPeriodically() async {
+        while !Task.isCancelled {
+            do {
+                try await Task.sleep(for: .seconds(60))
+            } catch {
+                return
+            }
+
+            guard activityTrackingService.state.activeApplicationName != nil else { continue }
+            await reloadAnalytics()
+        }
+    }
+
     private func scheduleAnalyticsLoad() {
         analyticsLoadTask?.cancel()
         let range = selectedRange
@@ -70,17 +101,15 @@ final class DashboardViewModel {
         analyticsState = .loading
 
         do {
-            async let summary = analyticsService.usageSummary(for: range)
-            async let breakdown = analyticsService.usageByApplication(for: range)
-            let (resolvedSummary, resolvedBreakdown) = try await (summary, breakdown)
+            let snapshot = try await analyticsService.analytics(for: range)
 
             guard shouldApplyAnalyticsResponse(requestID: requestID, range: range) else {
                 return
             }
 
-            usageSummary = resolvedSummary
-            usageByApp = resolvedBreakdown
-            analyticsState = resolvedBreakdown.isEmpty ? .empty : .loaded
+            usageSummary = snapshot.summary
+            usageByApp = snapshot.usageByApplication
+            analyticsState = snapshot.usageByApplication.isEmpty ? .empty : .loaded
         } catch is CancellationError {
             return
         } catch {

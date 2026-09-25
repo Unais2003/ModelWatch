@@ -29,6 +29,14 @@ struct DashboardView: View {
         .task {
             await viewModel.loadData()
         }
+        .task {
+            await viewModel.refreshActiveSessionPeriodically()
+        }
+        .onChange(of: viewModel.analyticsRevision) {
+            Task {
+                await viewModel.reloadAnalytics()
+            }
+        }
         .sheet(
             isPresented: Binding(
                 get: { !hasCompletedPrivacyOnboarding },

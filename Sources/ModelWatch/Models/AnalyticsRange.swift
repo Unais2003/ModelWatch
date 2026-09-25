@@ -1,3 +1,5 @@
+import Foundation
+
 enum AnalyticsRange: String, CaseIterable, Identifiable, Sendable {
     case day
     case week
@@ -14,5 +16,18 @@ enum AnalyticsRange: String, CaseIterable, Identifiable, Sendable {
         case .month:
             "This Month"
         }
+    }
+
+    func dateInterval(containing date: Date, calendar: Calendar) -> DateInterval? {
+        let component: Calendar.Component = switch self {
+        case .day:
+            .day
+        case .week:
+            .weekOfYear
+        case .month:
+            .month
+        }
+
+        return calendar.dateInterval(of: component, for: date)
     }
 }

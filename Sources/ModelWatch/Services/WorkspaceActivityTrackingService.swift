@@ -11,6 +11,7 @@ final class WorkspaceActivityTrackingService: ActivityTrackingService {
     private(set) var state = ActivityTrackingState.inactive
     private(set) var isMonitoringEnabled: Bool
     private(set) var trackedApplications: [TrackedApplication]
+    private(set) var analyticsRevision = 0
 
     @ObservationIgnored private let sessionStore: any ActivitySessionStore
     @ObservationIgnored private let preferencesStore: any ActivityTrackingPreferencesStore
@@ -213,6 +214,7 @@ final class WorkspaceActivityTrackingService: ActivityTrackingService {
             startedAt: date
         )
         try await sessionStore.save(session)
+        analyticsRevision &+= 1
         currentSession = session
         state = .monitoring(activeApplicationName: application.displayName)
     }
@@ -224,17 +226,20 @@ final class WorkspaceActivityTrackingService: ActivityTrackingService {
 
         guard date > session.startedAt else {
             try await sessionStore.delete(session)
+            analyticsRevision &+= 1
             return
         }
 
         session.endedAt = date
         try await sessionStore.update(session)
+        analyticsRevision &+= 1
     }
 
     private func discardUnfinishedSessions() async throws {
         let unfinishedSessions = try await sessionStore.fetchUnfinishedSessions()
         for session in unfinishedSessions {
             try await sessionStore.delete(session)
+            analyticsRevision &+= 1
         }
     }
 

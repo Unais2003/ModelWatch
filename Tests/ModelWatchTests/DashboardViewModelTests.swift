@@ -56,7 +56,16 @@ final class DashboardViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.analyticsState, .loaded)
         XCTAssertEqual(viewModel.usageSummary.range, .week)
         XCTAssertEqual(viewModel.usageSummary.totalDuration, 120, accuracy: 0.001)
-        XCTAssertEqual(viewModel.usageByApp, [AppUsage(applicationName: "Week", duration: 120)])
+        XCTAssertEqual(
+            viewModel.usageByApp,
+            [
+                AppUsage(
+                    applicationBundleIdentifier: "test.week",
+                    applicationName: "Week",
+                    duration: 120
+                )
+            ]
+        )
     }
 }
 
@@ -66,11 +75,7 @@ private enum DashboardTestError: Error {
 
 @MainActor
 private struct FailingAnalyticsService: AnalyticsService {
-    func usageSummary(for range: AnalyticsRange) async throws -> UsageSummary {
-        throw DashboardTestError.expected
-    }
-
-    func usageByApplication(for range: AnalyticsRange) async throws -> [AppUsage] {
+    func analytics(for range: AnalyticsRange) async throws -> AnalyticsSnapshot {
         throw DashboardTestError.expected
     }
 }
@@ -86,23 +91,24 @@ private struct SubscriptionServiceStub: SubscriptionService {
 
 @MainActor
 private struct DelayedAnalyticsService: AnalyticsService {
-    func usageSummary(for range: AnalyticsRange) async throws -> UsageSummary {
+    func analytics(for range: AnalyticsRange) async throws -> AnalyticsSnapshot {
         try await wait(for: range)
-        return UsageSummary(
-            range: range,
-            totalDuration: range == .day ? 60 : 120,
-            trackedApplicationCount: 1
+        let name = range == .day ? "Day" : "Week"
+        let duration: TimeInterval = range == .day ? 60 : 120
+        return AnalyticsSnapshot(
+            summary: UsageSummary(
+                range: range,
+                totalDuration: duration,
+                trackedApplicationCount: 1
+            ),
+            usageByApplication: [
+                AppUsage(
+                    applicationBundleIdentifier: "test.\(name.lowercased())",
+                    applicationName: name,
+                    duration: duration
+                )
+            ]
         )
-    }
-
-    func usageByApplication(for range: AnalyticsRange) async throws -> [AppUsage] {
-        try await wait(for: range)
-        return [
-            AppUsage(
-                applicationName: range == .day ? "Day" : "Week",
-                duration: range == .day ? 60 : 120
-            )
-        ]
     }
 
     private func wait(for range: AnalyticsRange) async throws {
@@ -110,4 +116,3 @@ private struct DelayedAnalyticsService: AnalyticsService {
         try await Task<Never, Never>.sleep(for: delay)
     }
 }
-

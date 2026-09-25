@@ -3,6 +3,7 @@ protocol ActivityTrackingService: AnyObject {
     var state: ActivityTrackingState { get }
     var isMonitoringEnabled: Bool { get }
     var trackedApplications: [TrackedApplication] { get }
+    var analyticsRevision: Int { get }
 
     func start() async
     func prepareForTermination() async
@@ -16,6 +17,7 @@ final class NoOpActivityTrackingService: ActivityTrackingService {
     let state = ActivityTrackingState.inactive
     let isMonitoringEnabled = false
     let trackedApplications: [TrackedApplication] = []
+    let analyticsRevision = 0
 
     func start() async {
     }

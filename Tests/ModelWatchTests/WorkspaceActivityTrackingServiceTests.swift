@@ -297,7 +297,7 @@ private final class TrackingSessionStoreSpy: ActivitySessionStore {
         self.sessions = sessions
     }
 
-    func fetchSessions(for range: AnalyticsRange) async throws -> [ActivitySession] {
+    func fetchSessions(overlapping interval: DateInterval) async throws -> [ActivitySession] {
         try failIfNeeded()
         return sessions
     }

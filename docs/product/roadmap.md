@@ -13,7 +13,7 @@ omitted until the core tracking behavior has been validated.
 - [x] Prevent stale dashboard requests from replacing the selected range.
 - [x] Add initial analytics and dashboard state tests.
 - [x] Introduce a deterministic clock dependency for activity tracking.
-- [ ] Introduce deterministic calendar behavior for analytics range boundaries.
+- [x] Introduce deterministic calendar behavior for analytics range boundaries.
 
 Exit criterion: the existing prototype builds without warnings and never
 presents demonstration data as real user activity.
@@ -34,11 +34,12 @@ inspectable sessions without granting unnecessary permissions.
 
 ## Phase 2: Trustworthy analytics
 
-- Correctly intersect sessions with day, week, and month boundaries.
-- Include active sessions without double counting.
-- Prevent stale asynchronous dashboard results.
-- Add empty, loading, and recoverable failure states.
-- Test calendar, daylight-saving, and malformed-session edge cases.
+- [x] Correctly intersect sessions with day, week, and month boundaries.
+- [x] Include active sessions without double counting.
+- [x] Prevent stale asynchronous dashboard results.
+- [x] Add empty, loading, and recoverable failure states.
+- [x] Refresh analytics after tracking changes and during active sessions.
+- [x] Test calendar, daylight-saving, persistence-overlap, and malformed-session edge cases.
 
 Exit criterion: displayed totals can be reproduced from stored session data.
 

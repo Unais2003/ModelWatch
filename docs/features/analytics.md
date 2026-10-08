@@ -7,20 +7,30 @@ and monthly summaries.
 
 ## Current implementation
 
-The dashboard can fetch sessions from the start of the selected calendar range,
-sum completed positive durations, group them by application name, and render a
-bar chart. The live application starts without demonstration sessions because
-real activity monitoring is not implemented yet.
+The dashboard calculates a single consistent analytics snapshot for the current
+day, week, or month. It queries every session that overlaps the selected
+calendar interval, clips each contribution to the interval and current time,
+and includes the elapsed part of the active session.
+
+Application totals are grouped by bundle identifier so display-name changes do
+not split one application into multiple rows. The most recent display name is
+retained, positive totals are sorted by descending duration, and ties are
+ordered by name. The summary and chart use the same snapshot, avoiding totals
+that disagree because they were loaded at different times.
+
+The dashboard reloads after the tracking service creates, closes, or recovers a
+session. While an approved application remains active, it refreshes once per
+minute so the visible elapsed duration stays current.
 
 ## Required MVP behavior
 
-- Calculate an explicit start and exclusive end for each reporting range.
-- Include only the portion of each session overlapping that range.
-- Use the current time as the temporary end of an active session.
-- Group applications by bundle identifier, retaining a suitable display name.
-- Sort the application breakdown by descending duration.
-- Count only applications with a positive duration in the range.
-- Refresh after tracking or stored data changes.
+- [x] Calculate an explicit start and exclusive end for each reporting range.
+- [x] Include only the portion of each session overlapping that range.
+- [x] Use the current time as the temporary end of an active session.
+- [x] Group applications by bundle identifier, retaining a suitable display name.
+- [x] Sort the application breakdown by descending duration.
+- [x] Count only applications with a positive duration in the range.
+- [x] Refresh after tracking changes and while a session is active.
 
 ## Presentation states
 
@@ -41,11 +51,12 @@ request must never replace the result for the currently selected range.
 - “This Month” begins at the user's calendar month boundary.
 - Daylight-saving transitions must use calendar boundaries, not fixed numbers
   of seconds.
-- Invalid negative-duration sessions must not reduce totals and should be
-  surfaced through diagnostics.
+- Invalid or negative-duration sessions are ignored so they cannot reduce
+  totals. A dedicated user-facing diagnostics surface is deferred.
 
 ## Future considerations
 
-Historical trends, comparisons, filters, export, and cost-per-hour analysis are
-outside the first analytics milestone. They should build on the same tested
-range-intersection rules.
+Historical trends, comparisons, filters, export, mutation-driven refreshes from
+future data-management screens, diagnostics, and cost-per-hour analysis are
+outside this milestone. They should build on the same tested range-intersection
+rules.

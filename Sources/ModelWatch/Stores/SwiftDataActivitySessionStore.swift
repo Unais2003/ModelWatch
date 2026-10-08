@@ -9,7 +9,8 @@ struct SwiftDataActivitySessionStore: ActivitySessionStore {
         let startDate = interval.start
         let endDate = interval.end
         let predicate = #Predicate<ActivitySession> { session in
-            session.startedAt < endDate && (session.endedAt == nil || session.endedAt! > startDate)
+            session.startedAt < endDate
+                && (session.endedAt ?? endDate) > startDate
         }
         let descriptor = FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\.startedAt, order: .reverse)])
         return try context.fetch(descriptor)

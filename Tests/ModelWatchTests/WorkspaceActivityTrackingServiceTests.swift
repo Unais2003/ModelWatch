@@ -57,6 +57,7 @@ final class WorkspaceActivityTrackingServiceTests: XCTestCase {
         XCTAssertEqual(fixture.store.sessions.count, 1)
         XCTAssertEqual(fixture.store.sessions[0].applicationBundleIdentifier, chatGPT.bundleIdentifier)
         XCTAssertNil(fixture.store.sessions[0].endedAt)
+        XCTAssertEqual(fixture.service.analyticsRevision, 1)
     }
 
     func testSwitchingTrackedApplicationsClosesOldSessionAndStartsNewSession() async {
@@ -78,6 +79,7 @@ final class WorkspaceActivityTrackingServiceTests: XCTestCase {
             fixture.service.state,
             .monitoring(activeApplicationName: cursor.displayName)
         )
+        XCTAssertEqual(fixture.service.analyticsRevision, 3)
     }
 
     func testDuplicateActivationDoesNotCreateAnotherSession() async {
@@ -93,6 +95,7 @@ final class WorkspaceActivityTrackingServiceTests: XCTestCase {
 
         XCTAssertEqual(fixture.store.sessions.count, 1)
         XCTAssertNil(fixture.store.sessions[0].endedAt)
+        XCTAssertEqual(fixture.service.analyticsRevision, 1)
     }
 
     func testUnapprovedApplicationClosesCurrentSessionWithoutStartingAnother() async {
@@ -223,6 +226,7 @@ final class WorkspaceActivityTrackingServiceTests: XCTestCase {
 
         XCTAssertTrue(fixture.store.sessions.isEmpty)
         XCTAssertEqual(fixture.service.state, .inactive)
+        XCTAssertEqual(fixture.service.analyticsRevision, 1)
     }
 
     func testPersistenceFailureStopsMonitoringWithVisibleError() async {

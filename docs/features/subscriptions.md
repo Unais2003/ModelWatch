@@ -7,17 +7,23 @@ and upcoming renewal dates.
 
 ## Current implementation
 
-SwiftData persistence and a read-only subscription list exist. Sample
-subscriptions are no longer inserted on first launch, so the live application
-starts with an explicit empty state. There is no create, edit, deactivate, or
-delete interface yet.
+The subscriptions dashboard provides native create, edit, deactivate,
+reactivate, and confirmed-delete workflows backed by SwiftData. Active and
+inactive records remain visible, while only active records contribute to
+monthly totals. Persistence and validation failures are presented without
+silently removing visible data.
+
+The editor captures a service name, monthly cost, ISO currency, optional
+renewal date, and active state. It uses a temporary form value, so cancelling an
+edit cannot mutate the stored record.
 
 ## MVP workflows
 
 ### Add
 
 The user enters a service name, monthly cost, currency, optional renewal date,
-and active status. Validation occurs before saving.
+and active status. Validation occurs before saving. The empty state and page
+toolbar both expose the add workflow.
 
 ### Edit
 
@@ -44,13 +50,17 @@ Failures are reported without removing the item from visible state.
 
 ## Currency strategy
 
-The MVP should either require one user-selected reporting currency or display a
-separate total per currency. It must not sum unlike currencies and label the
-result with a single currency symbol. Automatic conversion requires a rate
-provider, rate timestamp, failure behavior, and separate privacy review.
+ModelWatch displays a separate active monthly total for each stored currency.
+The overview shows the formatted total when exactly one currency is active and
+shows the number of currencies otherwise. Unlike currencies are never summed.
+
+Automatic conversion is deliberately excluded because it would require an
+exchange-rate provider, a rate timestamp, failure behavior, and a separate
+privacy review.
 
 ## Optional reminders
 
-Renewal notifications may follow subscription CRUD. Notification authorization
-must be requested in context when the user enables reminders, not at first
-launch without explanation.
+Renewal dates are visible in the subscription list. Notifications remain a
+post-MVP opt-in enhancement. Notification authorization must be requested in
+context when the user enables reminders, not at first launch without
+explanation.

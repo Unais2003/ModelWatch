@@ -7,6 +7,8 @@ final class DashboardViewModel {
     private enum LoadErrorMessage {
         static let analytics = "Unable to load usage data. Please try again."
         static let subscriptions = "Unable to load subscriptions. Please try again."
+        static let subscriptionMutation = "Unable to save the subscription. Please try again."
+        static let subscriptionDeletion = "Unable to delete the subscription. Please try again."
     }
 
     private let analyticsService: any AnalyticsService
@@ -20,9 +22,15 @@ final class DashboardViewModel {
     private(set) var usageSummary: UsageSummary = .empty(range: .day)
     private(set) var usageByApp: [AppUsage] = []
     private(set) var subscriptions: [Subscription] = []
-    private(set) var totalMonthlyCost: Double = 0
+    private(set) var subscriptionTotals: [SubscriptionTotal] = []
     private(set) var analyticsState: DashboardLoadState = .idle
     private(set) var subscriptionsState: DashboardLoadState = .idle
+    private(set) var isMutatingSubscription = false
+    private(set) var subscriptionMutationError: String?
+
+    var activeSubscriptionCount: Int {
+        subscriptions.lazy.filter(\.isActive).count
+    }
 
     var analyticsRevision: Int {
         activityTrackingService.analyticsRevision
@@ -72,6 +80,40 @@ final class DashboardViewModel {
 
     func reloadSubscriptions() async {
         await loadSubscriptions()
+    }
+
+    func addSubscription(_ input: SubscriptionInput) async -> Bool {
+        await performSubscriptionMutation {
+            let subscription = try await subscriptionService.create(input)
+            subscriptions.append(subscription)
+            applySubscriptions(subscriptions)
+        }
+    }
+
+    func updateSubscription(_ subscription: Subscription, with input: SubscriptionInput) async -> Bool {
+        await performSubscriptionMutation {
+            try await subscriptionService.update(subscription, with: input)
+            applySubscriptions(subscriptions)
+        }
+    }
+
+    func setSubscriptionActive(_ isActive: Bool, subscription: Subscription) async -> Bool {
+        await performSubscriptionMutation {
+            try await subscriptionService.setActive(isActive, for: subscription)
+            applySubscriptions(subscriptions)
+        }
+    }
+
+    func deleteSubscription(_ subscription: Subscription) async -> Bool {
+        await performSubscriptionMutation(fallbackMessage: LoadErrorMessage.subscriptionDeletion) {
+            try await subscriptionService.delete(subscription)
+            subscriptions.removeAll { $0.id == subscription.id }
+            applySubscriptions(subscriptions)
+        }
+    }
+
+    func clearSubscriptionMutationError() {
+        subscriptionMutationError = nil
     }
 
     func refreshActiveSessionPeriodically() async {
@@ -129,15 +171,13 @@ final class DashboardViewModel {
         subscriptionsState = .loading
 
         do {
-            let resolvedSubscriptions = try await subscriptionService.activeSubscriptions()
+            let resolvedSubscriptions = try await subscriptionService.subscriptions()
 
             guard requestID == subscriptionRequestID, !Task.isCancelled else {
                 return
             }
 
-            subscriptions = resolvedSubscriptions
-            totalMonthlyCost = resolvedSubscriptions.reduce(0) { $0 + $1.monthlyCost }
-            subscriptionsState = resolvedSubscriptions.isEmpty ? .empty : .loaded
+            applySubscriptions(resolvedSubscriptions)
         } catch is CancellationError {
             return
         } catch {
@@ -146,9 +186,51 @@ final class DashboardViewModel {
             }
 
             subscriptions = []
-            totalMonthlyCost = 0
+            subscriptionTotals = []
             subscriptionsState = .failed(message: LoadErrorMessage.subscriptions)
         }
+    }
+
+    private func performSubscriptionMutation(
+        fallbackMessage: String = LoadErrorMessage.subscriptionMutation,
+        operation: () async throws -> Void
+    ) async -> Bool {
+        guard !isMutatingSubscription else { return false }
+
+        isMutatingSubscription = true
+        subscriptionMutationError = nil
+        defer { isMutatingSubscription = false }
+
+        do {
+            try await operation()
+            return true
+        } catch let error as LocalizedError {
+            subscriptionMutationError = error.errorDescription ?? fallbackMessage
+            return false
+        } catch {
+            subscriptionMutationError = fallbackMessage
+            return false
+        }
+    }
+
+    private func applySubscriptions(_ resolvedSubscriptions: [Subscription]) {
+        subscriptions = resolvedSubscriptions.sorted {
+            if $0.isActive != $1.isActive {
+                return $0.isActive
+            }
+            return $0.serviceName.localizedStandardCompare($1.serviceName) == .orderedAscending
+        }
+
+        let totalsByCurrency = subscriptions
+            .filter(\.isActive)
+            .reduce(into: [String: Double]()) { totals, subscription in
+                totals[subscription.currencyCode, default: 0] += subscription.monthlyCost
+            }
+
+        subscriptionTotals = totalsByCurrency
+            .map { SubscriptionTotal(currencyCode: $0.key, monthlyCost: $0.value) }
+            .sorted { $0.currencyCode < $1.currencyCode }
+        subscriptionsState = subscriptions.isEmpty ? .empty : .loaded
     }
 
     private func shouldApplyAnalyticsResponse(requestID: Int, range: AnalyticsRange) -> Bool {

@@ -20,7 +20,7 @@ final class ArchitectureTests: XCTestCase {
     func testNoOpSubscriptionsReturnEmptyCollection() async throws {
         let service = NoOpSubscriptionService()
 
-        let subscriptions = try await service.activeSubscriptions()
+        let subscriptions = try await service.subscriptions()
 
         XCTAssertTrue(subscriptions.isEmpty)
     }

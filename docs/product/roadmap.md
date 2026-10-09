@@ -45,10 +45,11 @@ Exit criterion: displayed totals can be reproduced from stored session data.
 
 ## Phase 3: Subscription management
 
-- Add create, edit, deactivate, and delete workflows.
-- Validate cost, currency, service name, and renewal date.
-- Define the MVP currency strategy.
-- Add renewal presentation and optional local reminders.
+- [x] Add create, edit, deactivate, reactivate, and confirmed-delete workflows.
+- [x] Validate cost, ISO currency, service name, and optional renewal date.
+- [x] Display separate totals per currency without implicit conversion.
+- [x] Present renewal dates in the subscription list.
+- [ ] Add opt-in local renewal reminders after the notification UX is specified.
 
 Exit criterion: users can maintain their real subscriptions entirely in the app.
 

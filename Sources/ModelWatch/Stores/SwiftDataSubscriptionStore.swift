@@ -5,16 +5,37 @@ import SwiftData
 struct SwiftDataSubscriptionStore: SubscriptionStore {
     let context: ModelContext
 
-    func fetchActiveSubscriptions() async throws -> [Subscription] {
-        let predicate = #Predicate<Subscription> { subscription in
-            subscription.isActive == true
-        }
-        let descriptor = FetchDescriptor(predicate: predicate, sortBy: [SortDescriptor(\.serviceName)])
+    func fetchSubscriptions() async throws -> [Subscription] {
+        let descriptor = FetchDescriptor<Subscription>(sortBy: [SortDescriptor(\.serviceName)])
         return try context.fetch(descriptor)
     }
 
     func save(_ subscription: Subscription) async throws {
         context.insert(subscription)
-        try context.save()
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
+    }
+
+    func update(_ subscription: Subscription) async throws {
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
+    }
+
+    func delete(_ subscription: Subscription) async throws {
+        context.delete(subscription)
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 }

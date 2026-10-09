@@ -36,7 +36,10 @@ final class DashboardViewModelTests: XCTestCase {
         XCTAssertFalse(message.isEmpty)
         XCTAssertEqual(viewModel.subscriptionsState, .loaded)
         XCTAssertEqual(viewModel.subscriptions.map(\.serviceName), ["Example Plan"])
-        XCTAssertEqual(viewModel.totalMonthlyCost, 20, accuracy: 0.001)
+        XCTAssertEqual(
+            viewModel.subscriptionTotals,
+            [SubscriptionTotal(currencyCode: "USD", monthlyCost: 20)]
+        )
     }
 
     func testLatestRangeWinsWhenEarlierRequestFinishesLast() async {
@@ -82,10 +85,33 @@ private struct FailingAnalyticsService: AnalyticsService {
 
 @MainActor
 private struct SubscriptionServiceStub: SubscriptionService {
-    let subscriptions: [Subscription]
+    let storedSubscriptions: [Subscription]
 
-    func activeSubscriptions() async throws -> [Subscription] {
-        subscriptions
+    init(subscriptions: [Subscription]) {
+        storedSubscriptions = subscriptions
+    }
+
+    func subscriptions() async throws -> [Subscription] {
+        storedSubscriptions
+    }
+
+    func create(_ input: SubscriptionInput) async throws -> Subscription {
+        Subscription(
+            serviceName: input.serviceName,
+            monthlyCost: input.monthlyCost,
+            currencyCode: input.currencyCode,
+            renewalDate: input.renewalDate,
+            isActive: input.isActive
+        )
+    }
+
+    func update(_ subscription: Subscription, with input: SubscriptionInput) async throws {
+    }
+
+    func setActive(_ isActive: Bool, for subscription: Subscription) async throws {
+    }
+
+    func delete(_ subscription: Subscription) async throws {
     }
 }
 

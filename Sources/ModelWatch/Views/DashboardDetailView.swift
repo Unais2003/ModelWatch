@@ -98,9 +98,16 @@ private struct OverviewContent: View {
     private var subscriptionCostValue: String {
         switch viewModel.subscriptionsState {
         case .loaded:
-            "$\(String(format: "%.0f", viewModel.totalMonthlyCost))/mo"
+            if let total = viewModel.subscriptionTotals.first,
+               viewModel.subscriptionTotals.count == 1 {
+                "\(total.monthlyCost.formatted(.currency(code: total.currencyCode)))/mo"
+            } else if viewModel.subscriptionTotals.isEmpty {
+                "0/mo"
+            } else {
+                "\(viewModel.subscriptionTotals.count) currencies"
+            }
         case .empty:
-            "$0/mo"
+            "0/mo"
         case .idle, .loading, .failed:
             "—"
         }
@@ -189,101 +196,6 @@ private struct OverviewContent: View {
     }
 }
 
-private struct SubscriptionsContent: View {
-    let viewModel: DashboardViewModel
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                header
-                subscriptionsContent
-            }
-            .padding(24)
-        }
-        .navigationTitle("Subscriptions")
-    }
-
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Subscriptions")
-                .font(.title)
-                .fontWeight(.semibold)
-            Text(subscriptionSubtitle)
-                .font(.title2)
-                .foregroundStyle(.secondary)
-        }
-    }
-
-    private var subscriptionSubtitle: String {
-        switch viewModel.subscriptionsState {
-        case .idle, .loading:
-            "Loading subscriptions…"
-        case .loaded:
-            "$\(String(format: "%.2f", viewModel.totalMonthlyCost)) / month total"
-        case .empty:
-            "No active subscriptions"
-        case .failed:
-            "Subscriptions unavailable"
-        }
-    }
-
-    @ViewBuilder
-    private var subscriptionsContent: some View {
-        switch viewModel.subscriptionsState {
-        case .idle, .loading:
-            DashboardLoadingView(title: "Loading subscriptions…")
-        case .loaded:
-            subscriptionList
-        case .empty:
-            DashboardStatusView(
-                title: "No Subscriptions",
-                message: "Subscriptions you add will appear here.",
-                systemImage: "creditcard"
-            )
-        case let .failed(message):
-            DashboardStatusView(
-                title: "Subscriptions Unavailable",
-                message: message,
-                systemImage: "exclamationmark.triangle",
-                actionTitle: "Try Again"
-            ) {
-                Task { await viewModel.reloadSubscriptions() }
-            }
-        }
-    }
-
-    private var subscriptionList: some View {
-        ForEach(viewModel.subscriptions, id: \.id) { subscription in
-            VStack(spacing: 0) {
-                HStack {
-                    Label(subscription.serviceName, systemImage: "creditcard.fill")
-                        .font(.headline)
-                    Spacer()
-                    Text("$\(String(format: "%.2f", subscription.monthlyCost))/mo")
-                        .fontWeight(.semibold)
-                        .monospacedDigit()
-                }
-                .padding(.vertical, 12)
-                .padding(.horizontal, 16)
-
-                if let renewalDate = subscription.renewalDate {
-                    HStack {
-                        Text("Next renewal")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(renewalDate, style: .date)
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 12)
-                }
-            }
-            .background(.background.secondary)
-            .clipShape(RoundedRectangle(cornerRadius: 10))
-        }
-    }
-}
-
 private struct SettingsContent: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -326,7 +238,7 @@ private struct SummaryCard: View {
     }
 }
 
-private struct DashboardLoadingView: View {
+struct DashboardLoadingView: View {
     let title: String
 
     var body: some View {
@@ -335,7 +247,7 @@ private struct DashboardLoadingView: View {
     }
 }
 
-private struct DashboardStatusView: View {
+struct DashboardStatusView: View {
     let title: String
     let message: String
     let systemImage: String

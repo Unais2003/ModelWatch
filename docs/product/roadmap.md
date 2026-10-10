@@ -56,7 +56,7 @@ Exit criterion: users can maintain their real subscriptions entirely in the app.
 ## Phase 4: Product completion
 
 - Implement launch at login and remaining preferences.
-- Add data inspection, export, and deletion controls.
+- [x] Add data inspection, versioned JSON export, and confirmed deletion controls.
 - Complete accessibility and appearance verification.
 - Add app icon, version metadata, signing, notarization, and release workflow.
 - Measure launch time, idle energy use, and memory consumption.

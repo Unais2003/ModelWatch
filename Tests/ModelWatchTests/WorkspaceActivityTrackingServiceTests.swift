@@ -229,6 +229,30 @@ final class WorkspaceActivityTrackingServiceTests: XCTestCase {
         XCTAssertEqual(fixture.service.analyticsRevision, 1)
     }
 
+    func testDeletingHistoryWhileMonitoringStartsFreshActiveSession() async throws {
+        let fixture = makeFixture(
+            isEnabled: true,
+            applications: [chatGPT],
+            frontmostApplication: workspaceApplication(chatGPT)
+        )
+        await fixture.service.start()
+        let originalSessionID = try XCTUnwrap(fixture.store.sessions.first?.id)
+        fixture.clock.now = Date(timeIntervalSince1970: 2_000)
+
+        try await fixture.service.deleteActivityHistory()
+
+        let remainingSession = try XCTUnwrap(fixture.store.sessions.first)
+        XCTAssertEqual(fixture.store.sessions.count, 1)
+        XCTAssertNotEqual(remainingSession.id, originalSessionID)
+        XCTAssertEqual(remainingSession.startedAt, fixture.clock.now)
+        XCTAssertNil(remainingSession.endedAt)
+        XCTAssertEqual(
+            fixture.service.state,
+            .monitoring(activeApplicationName: chatGPT.displayName)
+        )
+        XCTAssertEqual(fixture.service.analyticsRevision, 4)
+    }
+
     func testPersistenceFailureStopsMonitoringWithVisibleError() async {
         let fixture = makeFixture(
             isEnabled: false,
@@ -306,6 +330,11 @@ private final class TrackingSessionStoreSpy: ActivitySessionStore {
         return sessions
     }
 
+    func fetchAllSessions() async throws -> [ActivitySession] {
+        try failIfNeeded()
+        return sessions
+    }
+
     func fetchUnfinishedSessions() async throws -> [ActivitySession] {
         try failIfNeeded()
         return sessions.filter { $0.endedAt == nil }
@@ -323,6 +352,11 @@ private final class TrackingSessionStoreSpy: ActivitySessionStore {
     func delete(_ session: ActivitySession) async throws {
         try failIfNeeded()
         sessions.removeAll { $0.id == session.id }
+    }
+
+    func deleteAllSessions() async throws {
+        try failIfNeeded()
+        sessions.removeAll()
     }
 
     private func failIfNeeded() throws {

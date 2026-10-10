@@ -10,6 +10,7 @@ protocol ActivityTrackingService: AnyObject {
     func setMonitoringEnabled(_ isEnabled: Bool) async
     func addTrackedApplication(_ application: TrackedApplication) async
     func removeTrackedApplication(bundleIdentifier: String) async
+    func deleteActivityHistory() async throws
 }
 
 @MainActor
@@ -32,5 +33,8 @@ final class NoOpActivityTrackingService: ActivityTrackingService {
     }
 
     func removeTrackedApplication(bundleIdentifier: String) async {
+    }
+
+    func deleteActivityHistory() async throws {
     }
 }

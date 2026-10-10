@@ -81,6 +81,11 @@ struct SettingsView: View {
                 Label("General", systemImage: "gearshape")
             }
 
+            DataManagementSettingsView(viewModel: viewModel)
+                .tabItem {
+                    Label("Data", systemImage: "externaldrive")
+                }
+
             Form {
                 LabeledContent("Application", value: viewModel.appName)
                 LabeledContent("Minimum macOS", value: viewModel.minimumSystemVersion)

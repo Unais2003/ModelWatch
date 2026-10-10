@@ -21,6 +21,13 @@ struct SwiftDataActivitySessionStore: ActivitySessionStore {
         try context.save()
     }
 
+    func fetchAllSessions() async throws -> [ActivitySession] {
+        let descriptor = FetchDescriptor<ActivitySession>(
+            sortBy: [SortDescriptor(\.startedAt, order: .reverse)]
+        )
+        return try context.fetch(descriptor)
+    }
+
     func fetchUnfinishedSessions() async throws -> [ActivitySession] {
         let predicate = #Predicate<ActivitySession> { session in
             session.endedAt == nil
@@ -39,5 +46,19 @@ struct SwiftDataActivitySessionStore: ActivitySessionStore {
     func delete(_ session: ActivitySession) async throws {
         context.delete(session)
         try context.save()
+    }
+
+    func deleteAllSessions() async throws {
+        let sessions = try context.fetch(FetchDescriptor<ActivitySession>())
+        for session in sessions {
+            context.delete(session)
+        }
+
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
     }
 }

@@ -37,5 +37,9 @@ final class SwiftDataSubscriptionStoreTests: XCTestCase {
         try await store.delete(alpha)
         fetched = try await store.fetchSubscriptions()
         XCTAssertEqual(fetched.map(\.id), [zeta.id])
+
+        try await store.deleteAllSubscriptions()
+        let remainingSubscriptions = try await store.fetchSubscriptions()
+        XCTAssertTrue(remainingSubscriptions.isEmpty)
     }
 }

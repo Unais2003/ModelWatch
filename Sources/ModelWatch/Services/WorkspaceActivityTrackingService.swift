@@ -112,6 +112,26 @@ final class WorkspaceActivityTrackingService: ActivityTrackingService {
         }
     }
 
+    func deleteActivityHistory() async throws {
+        let deletionDate = dateProvider.now
+
+        do {
+            try await closeCurrentSession(at: deletionDate)
+            try await sessionStore.deleteAllSessions()
+            analyticsRevision &+= 1
+
+            if isMonitoringEnabled {
+                state = .monitoring()
+                try await transition(to: eventSource.frontmostApplication, at: deletionDate)
+            } else {
+                state = .inactive
+            }
+        } catch {
+            handlePersistenceFailure()
+            throw error
+        }
+    }
+
     func process(_ event: WorkspaceActivityEvent) async {
         guard isMonitoringEnabled else { return }
 

@@ -38,4 +38,18 @@ struct SwiftDataSubscriptionStore: SubscriptionStore {
             throw error
         }
     }
+
+    func deleteAllSubscriptions() async throws {
+        let subscriptions = try context.fetch(FetchDescriptor<Subscription>())
+        for subscription in subscriptions {
+            context.delete(subscription)
+        }
+
+        do {
+            try context.save()
+        } catch {
+            context.rollback()
+            throw error
+        }
+    }
 }

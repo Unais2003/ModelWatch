@@ -149,6 +149,10 @@ private final class AnalyticsSessionStoreStub: ActivitySessionStore {
         return sessions
     }
 
+    func fetchAllSessions() async throws -> [ActivitySession] {
+        sessions
+    }
+
     func fetchUnfinishedSessions() async throws -> [ActivitySession] {
         sessions.filter { $0.endedAt == nil }
     }
@@ -160,6 +164,9 @@ private final class AnalyticsSessionStoreStub: ActivitySessionStore {
     }
 
     func delete(_ session: ActivitySession) async throws {
+    }
+
+    func deleteAllSessions() async throws {
     }
 }
 

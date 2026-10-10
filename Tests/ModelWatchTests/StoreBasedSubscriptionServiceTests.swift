@@ -157,6 +157,7 @@ private final class SubscriptionStoreSpy: SubscriptionStore {
         case save
         case update
         case delete
+        case deleteAll
     }
 
     var storedSubscriptions: [Subscription]
@@ -183,6 +184,11 @@ private final class SubscriptionStoreSpy: SubscriptionStore {
     func delete(_ subscription: Subscription) async throws {
         try failIfNeeded(.delete)
         storedSubscriptions.removeAll { $0.id == subscription.id }
+    }
+
+    func deleteAllSubscriptions() async throws {
+        try failIfNeeded(.deleteAll)
+        storedSubscriptions.removeAll()
     }
 
     private func failIfNeeded(_ operation: Operation) throws {

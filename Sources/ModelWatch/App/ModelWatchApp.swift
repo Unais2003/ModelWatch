@@ -12,7 +12,8 @@ struct ModelWatchApp: App {
                 viewModel: DashboardViewModel(
                     analyticsService: appContainer.analyticsService,
                     subscriptionService: appContainer.subscriptionService,
-                    activityTrackingService: appContainer.activityTrackingService
+                    activityTrackingService: appContainer.activityTrackingService,
+                    dataManagementService: appContainer.dataManagementService
                 )
             )
             .onAppear {
@@ -37,7 +38,8 @@ struct ModelWatchApp: App {
         Settings {
             SettingsView(
                 viewModel: SettingsViewModel(
-                    activityTrackingService: appContainer.activityTrackingService
+                    activityTrackingService: appContainer.activityTrackingService,
+                    dataManagementService: appContainer.dataManagementService
                 )
             )
         }

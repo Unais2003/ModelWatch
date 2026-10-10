@@ -8,11 +8,28 @@ final class SettingsViewModel {
     let minimumSystemVersion = AppConstants.minimumSystemVersion
 
     private let activityTrackingService: any ActivityTrackingService
+    private let dataManagementService: any DataManagementService
 
     private(set) var applicationSelectionError: String?
+    private(set) var localDataSummary = LocalDataSummary.empty
+    private(set) var localDataState: DashboardLoadState = .idle
+    private(set) var isPerformingDataOperation = false
+    private(set) var dataOperationError: String?
+    private(set) var dataOperationMessage: String?
 
-    init(activityTrackingService: any ActivityTrackingService) {
+    init(
+        activityTrackingService: any ActivityTrackingService,
+        dataManagementService: any DataManagementService
+    ) {
         self.activityTrackingService = activityTrackingService
+        self.dataManagementService = dataManagementService
+    }
+
+    convenience init(activityTrackingService: any ActivityTrackingService) {
+        self.init(
+            activityTrackingService: activityTrackingService,
+            dataManagementService: NoOpDataManagementService()
+        )
     }
 
     var isMonitoringEnabled: Bool {
@@ -94,6 +111,91 @@ final class SettingsViewModel {
             await activityTrackingService.removeTrackedApplication(
                 bundleIdentifier: application.bundleIdentifier
             )
+        }
+    }
+
+    func loadLocalDataSummary() async {
+        localDataState = .loading
+
+        do {
+            let summary = try await dataManagementService.summary()
+            localDataSummary = summary
+            localDataState = summary.isEmpty ? .empty : .loaded
+        } catch {
+            localDataState = .failed(message: "Unable to inspect local data. Please try again.")
+        }
+    }
+
+    func prepareExport() async -> ModelWatchExportDocument? {
+        guard !isPerformingDataOperation else { return nil }
+
+        isPerformingDataOperation = true
+        dataOperationError = nil
+        dataOperationMessage = nil
+        defer { isPerformingDataOperation = false }
+
+        do {
+            return ModelWatchExportDocument(data: try await dataManagementService.exportData())
+        } catch {
+            dataOperationError = "Unable to prepare the export. Please try again."
+            return nil
+        }
+    }
+
+    func deleteActivityHistory() async -> Bool {
+        await performDataDeletion(successMessage: "Activity history deleted.") {
+            try await dataManagementService.deleteActivityHistory()
+        }
+    }
+
+    func deleteSubscriptions() async -> Bool {
+        await performDataDeletion(successMessage: "Subscription data deleted.") {
+            try await dataManagementService.deleteSubscriptions()
+        }
+    }
+
+    func deleteAllData() async -> Bool {
+        await performDataDeletion(successMessage: "All activity and subscription data deleted.") {
+            try await dataManagementService.deleteAllData()
+        }
+    }
+
+    func reportExportResult(_ result: Result<URL, Error>) {
+        switch result {
+        case .success:
+            dataOperationError = nil
+            dataOperationMessage = "Export saved."
+        case .failure:
+            dataOperationMessage = nil
+            dataOperationError = "Unable to save the export. Please try again."
+        }
+    }
+
+    func clearDataOperationFeedback() {
+        dataOperationError = nil
+        dataOperationMessage = nil
+    }
+
+    private func performDataDeletion(
+        successMessage: String,
+        operation: () async throws -> Void
+    ) async -> Bool {
+        guard !isPerformingDataOperation else { return false }
+
+        isPerformingDataOperation = true
+        dataOperationError = nil
+        dataOperationMessage = nil
+        defer { isPerformingDataOperation = false }
+
+        do {
+            try await operation()
+            dataOperationMessage = successMessage
+            await loadLocalDataSummary()
+            return true
+        } catch {
+            dataOperationError = "Unable to complete the deletion. The data summary has been refreshed."
+            await loadLocalDataSummary()
+            return false
         }
     }
 }

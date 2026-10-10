@@ -21,6 +21,7 @@ GitHub, editors, and optional local knowledge tools such as Obsidian.
 
 - [Analytics](features/analytics.md)
 - [Subscriptions](features/subscriptions.md)
+- [Local data management](features/data-management.md)
 - [Settings](features/settings.md)
 
 ## Privacy
@@ -41,4 +42,3 @@ GitHub, editors, and optional local knowledge tools such as Obsidian.
 - Prefer relative Markdown links so documentation works outside a specific app.
 - Record consequential, hard-to-reverse architecture choices as an ADR.
 - Describe planned behavior as planned; do not present incomplete work as shipped.
-

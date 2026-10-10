@@ -32,6 +32,22 @@ final class SwiftDataActivitySessionStoreTests: XCTestCase {
         XCTAssertEqual(Set(result.map(\.id)), Set([crossingStart.id, inside.id, active.id]))
     }
 
+    func testDeleteAllSessionsRemovesEveryStoredSession() async throws {
+        let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(
+            for: ActivitySession.self,
+            configurations: configuration
+        )
+        let store = SwiftDataActivitySessionStore(context: ModelContext(container))
+        try await store.save(session(start: 100, end: 200))
+        try await store.save(session(start: 300, end: nil))
+
+        try await store.deleteAllSessions()
+
+        let remainingSessions = try await store.fetchAllSessions()
+        XCTAssertTrue(remainingSessions.isEmpty)
+    }
+
     private func session(start: TimeInterval, end: TimeInterval?) -> ActivitySession {
         ActivitySession(
             applicationBundleIdentifier: "test.application",

@@ -41,13 +41,17 @@ The MVP must not collect:
 - Activity and subscription data remain in local SwiftData storage.
 - Preferences remain in local application preferences.
 - No collected activity is transmitted by default.
+- JSON export is initiated explicitly and saved through the macOS save panel to
+  a location chosen by the user.
 - Operational logs must not include session histories or sensitive content.
 
 ## User control
 
 Before monitoring begins, onboarding should explain the collection scope. Users
 must be able to pause monitoring, change the approved application list, inspect
-the categories of stored data, and delete activity history.
+the categories and counts of stored data, export a portable copy, and delete
+activity history, subscription data, or both. Destructive operations require
+confirmation and retain application choices and general preferences.
 
 ## Demonstration data
 
@@ -60,4 +64,3 @@ identified demo mode.
 Provider APIs, synchronization, telemetry, or team features require a new
 privacy review. Documentation must specify data categories, destination,
 retention, credentials, opt-in behavior, and deletion before implementation.
-

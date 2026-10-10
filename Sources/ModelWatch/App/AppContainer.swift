@@ -6,6 +6,7 @@ struct AppContainer {
     let activityTrackingService: any ActivityTrackingService
     let analyticsService: any AnalyticsService
     let subscriptionService: any SubscriptionService
+    let dataManagementService: any DataManagementService
     let notificationSchedulingService: any NotificationSchedulingService
 
     static func live() -> AppContainer {
@@ -39,6 +40,12 @@ struct AppContainer {
                     dateProvider: dateProvider
                 ),
                 subscriptionService: StoreBasedSubscriptionService(subscriptionStore: subscriptionStore),
+                dataManagementService: LocalDataManagementService(
+                    sessionStore: sessionStore,
+                    subscriptionStore: subscriptionStore,
+                    activityTrackingService: activityTrackingService,
+                    dateProvider: dateProvider
+                ),
                 notificationSchedulingService: NoOpNotificationSchedulingService()
             )
         } catch {

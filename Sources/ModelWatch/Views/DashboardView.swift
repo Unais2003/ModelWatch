@@ -37,6 +37,11 @@ struct DashboardView: View {
                 await viewModel.reloadAnalytics()
             }
         }
+        .onChange(of: viewModel.dataRevision) {
+            Task {
+                await viewModel.loadData()
+            }
+        }
         .sheet(
             isPresented: Binding(
                 get: { !hasCompletedPrivacyOnboarding },

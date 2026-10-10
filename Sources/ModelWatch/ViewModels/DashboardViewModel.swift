@@ -14,6 +14,7 @@ final class DashboardViewModel {
     private let analyticsService: any AnalyticsService
     private let subscriptionService: any SubscriptionService
     private let activityTrackingService: any ActivityTrackingService
+    private let dataManagementService: any DataManagementService
 
     var selectedRange: AnalyticsRange = .day {
         didSet { scheduleAnalyticsLoad() }
@@ -36,6 +37,10 @@ final class DashboardViewModel {
         activityTrackingService.analyticsRevision
     }
 
+    var dataRevision: Int {
+        dataManagementService.revision
+    }
+
     @ObservationIgnored
     private var analyticsLoadTask: Task<Void, Never>?
 
@@ -48,11 +53,13 @@ final class DashboardViewModel {
     init(
         analyticsService: any AnalyticsService,
         subscriptionService: any SubscriptionService,
-        activityTrackingService: any ActivityTrackingService
+        activityTrackingService: any ActivityTrackingService,
+        dataManagementService: any DataManagementService
     ) {
         self.analyticsService = analyticsService
         self.subscriptionService = subscriptionService
         self.activityTrackingService = activityTrackingService
+        self.dataManagementService = dataManagementService
     }
 
     convenience init(
@@ -62,7 +69,8 @@ final class DashboardViewModel {
         self.init(
             analyticsService: analyticsService,
             subscriptionService: subscriptionService,
-            activityTrackingService: NoOpActivityTrackingService()
+            activityTrackingService: NoOpActivityTrackingService(),
+            dataManagementService: NoOpDataManagementService()
         )
     }
 

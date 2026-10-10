@@ -6,9 +6,11 @@ ModelWatch is a Swift Package Manager executable for macOS 14 and later. It
 uses SwiftUI for presentation, SwiftData for persistence, and Apple Charts for
 visualization. There are no third-party runtime dependencies.
 
-The current implementation provides the application shell, dashboard,
-persistence models, and read-only analytics. Activity monitoring and
-notifications are represented by no-op services and are not implemented yet.
+The current implementation provides the application shell, privacy-first
+activity monitoring, reproducible analytics, subscription management, and
+local data inspection, export, and deletion. SwiftData-backed services are
+injected through the application container and covered by in-memory store
+integration tests. Renewal notifications remain optional and are not enabled.
 
 ## Layers
 
@@ -76,14 +78,10 @@ The existing folder structure is sufficient for the MVP. Add focused files
 within the current `Models`, `Services`, `Stores`, `ViewModels`, and `Views`
 groups rather than introducing packages or frameworks prematurely.
 
-Expected additions include:
-
-- A workspace-observation abstraction around macOS activation events
-- A tracking coordinator implementing the session state machine
-- A configured-application model or value type
-- Subscription mutation operations and validation
-- Explicit dashboard presentation state
-- A clock abstraction for deterministic time-based tests
+Current feature boundaries include workspace observation, activity tracking,
+analytics, subscriptions, and local data management. Future additions should
+continue using focused protocols and composition-root injection instead of
+allowing views to access SwiftData or system services directly.
 
 ## Concurrency
 
@@ -117,4 +115,3 @@ See [Testing](../engineering/testing.md) for the expected test coverage.
 - [Activity-tracking design](activity-tracking.md)
 - [Architecture decision records](decisions/README.md)
 - [Product requirements](../product/requirements.md)
-

@@ -12,9 +12,13 @@ approved applications, and enable or pause activity monitoring. Monitoring is
 off by default, stops automatically when the last approved application is
 removed, and displays persistence failures. A first-run privacy explanation
 describes the collected and excluded data before directing users to Settings.
-“Launch at login” and “Show menu bar status” remain `AppStorage` values that do
-not yet control system behavior. The dashboard also contains a separate
-placeholder Settings page.
+The General tab registers launch-at-login through `SMAppService`, reports when
+macOS requires approval, controls whether the dashboard opens at startup, and
+inserts or removes the menu-bar item. The dashboard Settings destination opens
+the same native Settings scene rather than maintaining duplicate controls.
+
+The Data tab summarizes locally stored activity and subscription records,
+exports a versioned JSON document, and provides confirmed deletion controls.
 
 ## MVP settings
 
@@ -26,9 +30,9 @@ placeholder Settings page.
 
 ### Application
 
-- Launch ModelWatch at login using the supported macOS service API.
-- Define whether the main dashboard opens at launch.
-- Keep menu-bar behavior consistent with the product's operating mode.
+- [x] Launch ModelWatch at login using the supported macOS service API.
+- [x] Define whether the main dashboard opens at launch.
+- [x] Keep menu-bar behavior consistent with the product's operating mode.
 
 ### Data and privacy
 

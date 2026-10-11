@@ -197,6 +197,8 @@ private struct OverviewContent: View {
 }
 
 private struct SettingsContent: View {
+    @Environment(\.openSettings) private var openSettings
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("Settings", systemImage: "gearshape")
@@ -205,6 +207,10 @@ private struct SettingsContent: View {
 
             Text("Configure ModelWatch preferences.")
                 .foregroundStyle(.secondary)
+
+            Button("Open Settings…") {
+                openSettings()
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .padding(32)

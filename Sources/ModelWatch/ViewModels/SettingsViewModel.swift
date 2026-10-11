@@ -9,6 +9,7 @@ final class SettingsViewModel {
 
     private let activityTrackingService: any ActivityTrackingService
     private let dataManagementService: any DataManagementService
+    private let launchAtLoginService: any LaunchAtLoginService
 
     private(set) var applicationSelectionError: String?
     private(set) var localDataSummary = LocalDataSummary.empty
@@ -16,20 +17,55 @@ final class SettingsViewModel {
     private(set) var isPerformingDataOperation = false
     private(set) var dataOperationError: String?
     private(set) var dataOperationMessage: String?
+    private(set) var launchAtLoginStatus = LaunchAtLoginStatus.unavailable
+    private(set) var isUpdatingLaunchAtLogin = false
+    private(set) var launchAtLoginError: String?
 
     init(
         activityTrackingService: any ActivityTrackingService,
-        dataManagementService: any DataManagementService
+        dataManagementService: any DataManagementService,
+        launchAtLoginService: any LaunchAtLoginService
     ) {
         self.activityTrackingService = activityTrackingService
         self.dataManagementService = dataManagementService
+        self.launchAtLoginService = launchAtLoginService
+        launchAtLoginStatus = launchAtLoginService.status
     }
 
     convenience init(activityTrackingService: any ActivityTrackingService) {
         self.init(
             activityTrackingService: activityTrackingService,
-            dataManagementService: NoOpDataManagementService()
+            dataManagementService: NoOpDataManagementService(),
+            launchAtLoginService: NoOpLaunchAtLoginService()
         )
+    }
+
+    convenience init(
+        activityTrackingService: any ActivityTrackingService,
+        dataManagementService: any DataManagementService
+    ) {
+        self.init(
+            activityTrackingService: activityTrackingService,
+            dataManagementService: dataManagementService,
+            launchAtLoginService: NoOpLaunchAtLoginService()
+        )
+    }
+
+    var isLaunchAtLoginRequested: Bool {
+        launchAtLoginStatus.isRequested
+    }
+
+    var launchAtLoginStatusMessage: String {
+        switch launchAtLoginStatus {
+        case .disabled:
+            "ModelWatch will not start automatically when you sign in."
+        case .enabled:
+            "ModelWatch will start automatically when you sign in."
+        case .requiresApproval:
+            "Approval is required in System Settings → General → Login Items."
+        case .unavailable:
+            "Launch at login is available after ModelWatch is installed as a signed app."
+        }
     }
 
     var isMonitoringEnabled: Bool {
@@ -70,6 +106,39 @@ final class SettingsViewModel {
         Task {
             await activityTrackingService.setMonitoringEnabled(isEnabled)
         }
+    }
+
+    func refreshLaunchAtLoginStatus() {
+        launchAtLoginStatus = launchAtLoginService.status
+    }
+
+    func setLaunchAtLoginEnabled(_ isEnabled: Bool) {
+        Task {
+            _ = await updateLaunchAtLoginEnabled(isEnabled)
+        }
+    }
+
+    @discardableResult
+    func updateLaunchAtLoginEnabled(_ isEnabled: Bool) async -> Bool {
+        guard !isUpdatingLaunchAtLogin else { return false }
+
+        isUpdatingLaunchAtLogin = true
+        launchAtLoginError = nil
+        defer { isUpdatingLaunchAtLogin = false }
+
+        do {
+            try await launchAtLoginService.setEnabled(isEnabled)
+            launchAtLoginStatus = launchAtLoginService.status
+            return true
+        } catch {
+            launchAtLoginError = "Unable to update launch at login. Please try again."
+            launchAtLoginStatus = launchAtLoginService.status
+            return false
+        }
+    }
+
+    func openLoginItemsSettings() {
+        launchAtLoginService.openSystemSettings()
     }
 
     func addApplication(at url: URL) async {

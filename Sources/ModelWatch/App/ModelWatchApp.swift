@@ -5,6 +5,7 @@ import SwiftData
 struct ModelWatchApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var appContainer = AppContainer.live()
+    @AppStorage(AppPreferenceKey.showMenuBarStatus) private var showMenuBarStatus = true
 
     var body: some Scene {
         WindowGroup(AppConstants.appName, id: AppWindowID.dashboard.rawValue) {
@@ -26,7 +27,11 @@ struct ModelWatchApp: App {
             ModelWatchCommands()
         }
 
-        MenuBarExtra(AppConstants.appName, systemImage: "chart.bar.xaxis") {
+        MenuBarExtra(
+            AppConstants.appName,
+            systemImage: "chart.bar.xaxis",
+            isInserted: $showMenuBarStatus
+        ) {
             MenuBarView(
                 viewModel: MenuBarViewModel(
                     activityTrackingService: appContainer.activityTrackingService
@@ -39,7 +44,8 @@ struct ModelWatchApp: App {
             SettingsView(
                 viewModel: SettingsViewModel(
                     activityTrackingService: appContainer.activityTrackingService,
-                    dataManagementService: appContainer.dataManagementService
+                    dataManagementService: appContainer.dataManagementService,
+                    launchAtLoginService: appContainer.launchAtLoginService
                 )
             )
         }

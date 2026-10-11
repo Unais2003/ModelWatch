@@ -3,8 +3,8 @@ import UniformTypeIdentifiers
 
 struct SettingsView: View {
     let viewModel: SettingsViewModel
-    @AppStorage("launchAtLogin") private var launchAtLogin = false
-    @AppStorage("showMenuBarStatus") private var showMenuBarStatus = true
+    @AppStorage(AppPreferenceKey.openDashboardAtLaunch) private var openDashboardAtLaunch = true
+    @AppStorage(AppPreferenceKey.showMenuBarStatus) private var showMenuBarStatus = true
     @State private var isChoosingApplication = false
     @State private var importerError: String?
 
@@ -73,10 +73,53 @@ struct SettingsView: View {
             }
 
             Form {
-                Toggle("Launch at login", isOn: $launchAtLogin)
-                Toggle("Show menu bar status", isOn: $showMenuBarStatus)
+                Section("Startup") {
+                    Toggle(
+                        "Launch at login",
+                        isOn: Binding(
+                            get: { viewModel.isLaunchAtLoginRequested },
+                            set: { viewModel.setLaunchAtLoginEnabled($0) }
+                        )
+                    )
+                    .disabled(
+                        viewModel.isUpdatingLaunchAtLogin
+                            || viewModel.launchAtLoginStatus == .unavailable
+                    )
+
+                    Text(viewModel.launchAtLoginStatusMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    if viewModel.launchAtLoginStatus == .requiresApproval {
+                        Button("Open Login Items Settings…") {
+                            viewModel.openLoginItemsSettings()
+                        }
+                    }
+
+                    if let error = viewModel.launchAtLoginError {
+                        Text(error)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
+
+                    Toggle("Open dashboard when ModelWatch starts", isOn: $openDashboardAtLaunch)
+
+                    Text("When disabled, ModelWatch starts in the background and remains available from the menu bar or Dock.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Section("Menu Bar") {
+                    Toggle("Show menu bar status", isOn: $showMenuBarStatus)
+                    Text("When hidden, use the Dock, application menu, or Settings to access ModelWatch.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
             }
             .formStyle(.grouped)
+            .task {
+                viewModel.refreshLaunchAtLoginStatus()
+            }
             .tabItem {
                 Label("General", systemImage: "gearshape")
             }

@@ -31,6 +31,8 @@ Before distributing a build:
 - Exercise monitoring across app switching, sleep, wake, lock, and restart.
 - Verify persistence migration from the previous released version.
 - Confirm login-item and notification behavior when enabled and denied.
+- Confirm launch-at-login registration from the signed app in `/Applications`;
+  development builds may report the service as unavailable.
 - Measure idle CPU, memory, and energy impact.
 - Confirm no sample data, secrets, debug logging, or development paths ship.
 - Verify code signature and notarization status.

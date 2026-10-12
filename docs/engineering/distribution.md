@@ -3,15 +3,17 @@
 ## Current status
 
 The repository contains a development script that assembles the Swift Package
-Manager executable into a minimal `.app` directory under `dist/`. This is useful
-for local testing but is not a production distribution pipeline.
+Manager executable into an ad-hoc signed `.app` directory under `dist/`. The
+bundle includes a generated `.icns`, version/build metadata, application
+category, minimum system version, and high-resolution declaration. This is
+useful for local testing but is not a production distribution pipeline.
 
 ## Beta release requirements
 
-- Stable bundle identifier
-- Marketing version and build number
-- Application icon and asset catalog
-- Complete `Info.plist` metadata
+- [x] Stable bundle identifier
+- [x] Marketing version and build number
+- [x] Application icon and local `.icns` generation
+- [x] Complete local `Info.plist` metadata
 - Required entitlements only
 - Hardened runtime configuration
 - Developer ID signing

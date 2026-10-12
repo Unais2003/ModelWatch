@@ -19,6 +19,8 @@ the same native Settings scene rather than maintaining duplicate controls.
 
 The Data tab summarizes locally stored activity and subscription records,
 exports a versioned JSON document, and provides confirmed deletion controls.
+The About tab displays the application name, marketing version, build number,
+and minimum supported macOS version from the application bundle.
 
 ## MVP settings
 
@@ -39,7 +41,7 @@ exports a versioned JSON document, and provides confirmed deletion controls.
 - Explain what activity fields are stored.
 - Show the local-only status of the MVP.
 - Delete activity history with confirmation.
-- Provide application and data version information useful for support.
+- [x] Provide application and data version information useful for support.
 
 ### About
 

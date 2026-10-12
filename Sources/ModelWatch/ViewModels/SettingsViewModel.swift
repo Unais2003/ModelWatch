@@ -5,6 +5,7 @@ import Observation
 @MainActor
 final class SettingsViewModel {
     let appName = AppConstants.appName
+    let versionDescription = AppConstants.versionDescription
     let minimumSystemVersion = AppConstants.minimumSystemVersion
 
     private let activityTrackingService: any ActivityTrackingService

@@ -32,18 +32,27 @@ toolchains. These should be resolved before adopting Swift 6 language mode.
 ./script/build_and_run.sh
 ```
 
-The script stops an existing `ModelWatch` process, builds the executable,
-replaces `dist/ModelWatch.app`, and opens it. Additional modes are available:
+The script builds the executable, assembles `dist/ModelWatch.app`, generates its
+`.icns` file from the checked-in master icon, applies an ad-hoc local signature,
+verifies the bundle, and opens a new instance. It does not terminate an existing
+ModelWatch process. Additional modes are available:
 
 ```bash
+./script/build_and_run.sh build
 ./script/build_and_run.sh --debug
 ./script/build_and_run.sh --logs
 ./script/build_and_run.sh --telemetry
 ./script/build_and_run.sh --verify
+./script/build_and_run.sh --release
 ```
 
-The generated bundle is intended for local development. It is not a signed or
-notarized release artifact.
+`build` assembles a debug bundle without opening it. `--release` assembles an
+optimized bundle without opening it. Both are ad-hoc signed for local integrity;
+neither is Developer ID signed or notarized for distribution.
+
+Update `CFBundleShortVersionString` and `CFBundleVersion` in
+`Resources/Info.plist` when preparing a new version. The About tab reads those
+values from the assembled application bundle.
 
 ## Repository layout
 

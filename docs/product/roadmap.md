@@ -59,7 +59,8 @@ Exit criterion: users can maintain their real subscriptions entirely in the app.
 - [x] Add data inspection, versioned JSON export, and confirmed deletion controls.
 - [x] Add semantic accessibility labels and adaptive layouts.
 - [ ] Complete the manual VoiceOver, keyboard, and appearance verification matrix.
-- Add app icon, version metadata, signing, notarization, and release workflow.
+- [x] Add app icon, version metadata, and reproducible local app packaging.
+- [ ] Add Developer ID signing, notarization, and the release workflow.
 - Measure launch time, idle energy use, and memory consumption.
 
 Exit criterion: ModelWatch is suitable for a signed beta distribution.

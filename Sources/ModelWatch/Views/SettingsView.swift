@@ -138,6 +138,7 @@ struct SettingsView: View {
 
             Form {
                 LabeledContent("Application", value: viewModel.appName)
+                LabeledContent("Version", value: viewModel.versionDescription)
                 LabeledContent("Minimum macOS", value: viewModel.minimumSystemVersion)
             }
             .formStyle(.grouped)

@@ -127,7 +127,10 @@ struct SubscriptionsContent: View {
                 Text("Active Monthly Totals")
                     .font(.headline)
 
-                HStack(spacing: 12) {
+                LazyVGrid(
+                    columns: [GridItem(.adaptive(minimum: 180), spacing: 12)],
+                    spacing: 12
+                ) {
                     ForEach(viewModel.subscriptionTotals) { total in
                         VStack(alignment: .leading, spacing: 2) {
                             Text(total.currencyCode)
@@ -227,12 +230,12 @@ struct SubscriptionsContent: View {
         .padding(16)
         .background(.background.secondary)
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .opacity(subscription.isActive ? 1 : 0.72)
     }
 
     private func errorBanner(_ message: String) -> some View {
         Label(message, systemImage: "exclamationmark.triangle.fill")
             .foregroundStyle(.red)
+            .accessibilityLabel("Error: \(message)")
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(12)
             .background(.red.opacity(0.08))

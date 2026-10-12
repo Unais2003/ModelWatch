@@ -10,6 +10,7 @@ struct PrivacyOnboardingView: View {
             Image(systemName: "eye.circle.fill")
                 .font(.system(size: 44))
                 .foregroundStyle(Color.accentColor)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 8) {
                 Text("Welcome to ModelWatch")
@@ -43,6 +44,7 @@ struct PrivacyOnboardingView: View {
                 Button("Not Now") {
                     onComplete()
                 }
+                .keyboardShortcut(.cancelAction)
 
                 Spacer()
 
@@ -51,10 +53,11 @@ struct PrivacyOnboardingView: View {
                     openSettings()
                 }
                 .buttonStyle(.borderedProminent)
+                .keyboardShortcut(.defaultAction)
             }
         }
         .padding(32)
-        .frame(width: 560)
+        .frame(minWidth: 420, idealWidth: 560, maxWidth: 560)
         .interactiveDismissDisabled()
     }
 }
@@ -69,6 +72,7 @@ private struct PrivacyOnboardingRow: View {
             Image(systemName: icon)
                 .frame(width: 24)
                 .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
@@ -77,5 +81,8 @@ private struct PrivacyOnboardingRow: View {
                     .foregroundStyle(.secondary)
             }
         }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(title)
+        .accessibilityValue(detail)
     }
 }

@@ -57,11 +57,13 @@ struct DataManagementSettingsView: View {
             if let message = viewModel.dataOperationMessage {
                 Label(message, systemImage: "checkmark.circle.fill")
                     .foregroundStyle(.green)
+                    .accessibilityLabel("Success: \(message)")
             }
 
             if let error = viewModel.dataOperationError {
                 Label(error, systemImage: "exclamationmark.triangle.fill")
                     .foregroundStyle(.red)
+                    .accessibilityLabel("Error: \(error)")
             }
         }
         .formStyle(.grouped)
@@ -104,8 +106,9 @@ struct DataManagementSettingsView: View {
                 value: viewModel.localDataSummary.subscriptionCount.formatted()
             )
         case let .failed(message):
-            Text(message)
+            Label(message, systemImage: "exclamationmark.triangle.fill")
                 .foregroundStyle(.red)
+                .accessibilityLabel("Error: \(message)")
             Button("Try Again") {
                 Task { await viewModel.loadLocalDataSummary() }
             }

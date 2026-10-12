@@ -55,6 +55,7 @@ struct SubscriptionEditorView: View {
                 if let error = localError ?? viewModel.subscriptionMutationError {
                     Label(error, systemImage: "exclamationmark.triangle.fill")
                         .foregroundStyle(.red)
+                        .accessibilityLabel("Error: \(error)")
                 }
             }
             .formStyle(.grouped)
@@ -69,8 +70,19 @@ struct SubscriptionEditorView: View {
 
                 Spacer()
 
-                Button(subscription == nil ? "Add" : "Save") {
+                Button {
                     save()
+                } label: {
+                    HStack(spacing: 6) {
+                        if isSaving {
+                            ProgressView()
+                                .controlSize(.small)
+                                .accessibilityHidden(true)
+                            Text("Saving…")
+                        } else {
+                            Text(subscription == nil ? "Add" : "Save")
+                        }
+                    }
                 }
                 .keyboardShortcut(.defaultAction)
                 .buttonStyle(.borderedProminent)
@@ -78,7 +90,12 @@ struct SubscriptionEditorView: View {
             }
             .padding()
         }
-        .frame(width: 440, height: includesRenewalDate ? 390 : 340)
+        .frame(
+            minWidth: 440,
+            idealWidth: 440,
+            minHeight: includesRenewalDate ? 390 : 340,
+            idealHeight: includesRenewalDate ? 390 : 340
+        )
         .navigationTitle(subscription == nil ? "Add Subscription" : "Edit Subscription")
         .onAppear {
             viewModel.clearSubscriptionMutationError()

@@ -17,13 +17,12 @@ later.
 - Local persistence with SwiftData
 - Daily, weekly, and monthly usage summaries
 - Per-application usage charts and breakdowns
+- Subscription creation, editing, activation, and deletion
+- Versioned local-data export and confirmed deletion controls
+- Launch-at-login and startup preferences
 - First-run privacy onboarding
 - Loading, empty, failure, and retry states
 - Automated coverage for tracking, analytics, preferences, and view models
-
-Subscription records can be displayed from the local data store, but the user
-interface for adding, editing, deactivating, and deleting them is still
-planned.
 
 ## Privacy
 
@@ -105,10 +104,9 @@ AppKit where native workspace integration is required.
 
 The next MVP milestones are:
 
-- Complete edge-case validation for analytics ranges
-- Add subscription creation and management
-- Implement launch-at-login and remaining settings behavior
-- Add activity-data inspection, export, and deletion controls
+- Complete manual VoiceOver, keyboard, and appearance verification
+- Verify activity tracking across screen lock and unlock
+- Measure launch time, idle energy use, and memory consumption
 - Prepare signing, notarization, and beta distribution
 
 Provider billing integrations, token analytics, budgets, forecasts, sync, and

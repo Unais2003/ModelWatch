@@ -57,7 +57,8 @@ Exit criterion: users can maintain their real subscriptions entirely in the app.
 
 - [x] Implement launch at login and remaining preferences.
 - [x] Add data inspection, versioned JSON export, and confirmed deletion controls.
-- Complete accessibility and appearance verification.
+- [x] Add semantic accessibility labels and adaptive layouts.
+- [ ] Complete the manual VoiceOver, keyboard, and appearance verification matrix.
 - Add app icon, version metadata, signing, notarization, and release workflow.
 - Measure launch time, idle energy use, and memory consumption.
 

@@ -33,26 +33,39 @@ private struct OverviewContent: View {
     }
 
     private var header: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Usage Overview")
-                    .font(.title)
-                    .fontWeight(.semibold)
-                Text(analyticsSubtitle)
-                    .font(.title2)
-                    .foregroundStyle(.secondary)
+        ViewThatFits(in: .horizontal) {
+            HStack {
+                headerTitle
+                Spacer()
+                rangePicker
             }
 
-            Spacer()
-
-            Picker("Range", selection: Bindable(viewModel).selectedRange) {
-                ForEach(AnalyticsRange.allCases) { range in
-                    Text(range.title).tag(range)
-                }
+            VStack(alignment: .leading, spacing: 12) {
+                headerTitle
+                rangePicker
             }
-            .pickerStyle(.segmented)
-            .frame(width: 280)
         }
+    }
+
+    private var headerTitle: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Usage Overview")
+                .font(.title)
+                .fontWeight(.semibold)
+            Text(analyticsSubtitle)
+                .font(.title2)
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var rangePicker: some View {
+        Picker("Range", selection: Bindable(viewModel).selectedRange) {
+            ForEach(AnalyticsRange.allCases) { range in
+                Text(range.title).tag(range)
+            }
+        }
+        .pickerStyle(.segmented)
+        .frame(maxWidth: 280)
     }
 
     private var formattedTotalTime: String {
@@ -114,7 +127,10 @@ private struct OverviewContent: View {
     }
 
     private var summaryCards: some View {
-        HStack(spacing: 16) {
+        LazyVGrid(
+            columns: [GridItem(.adaptive(minimum: 180), spacing: 16)],
+            spacing: 16
+        ) {
             SummaryCard(title: "Total Time", value: totalTimeValue, icon: "clock")
             SummaryCard(title: "Apps Used", value: appCountValue, icon: "app.badge")
             SummaryCard(title: "Subscriptions", value: subscriptionCostValue, icon: "creditcard")
@@ -167,11 +183,22 @@ private struct OverviewContent: View {
                 }
                 .chartXAxisLabel("Minutes")
                 .frame(height: CGFloat(max(160, viewModel.usageByApp.count * 40)))
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Usage by application")
+                .accessibilityValue(usageAccessibilityValue)
             }
         }
         .padding(16)
         .background(.background.secondary)
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+
+    private var usageAccessibilityValue: String {
+        viewModel.usageByApp.map { item in
+            let duration = DurationFormatter.short.string(from: item.duration) ?? "0 minutes"
+            return "\(item.applicationName), \(duration)"
+        }
+        .joined(separator: "; ")
     }
 
     private var appBreakdown: some View {
@@ -241,6 +268,9 @@ private struct SummaryCard: View {
         .padding(16)
         .background(.background.secondary)
         .clipShape(RoundedRectangle(cornerRadius: 10))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(title)
+        .accessibilityValue(value)
     }
 }
 
@@ -265,6 +295,7 @@ struct DashboardStatusView: View {
             Image(systemName: systemImage)
                 .font(.largeTitle)
                 .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
             Text(title)
                 .font(.headline)
             Text(message)

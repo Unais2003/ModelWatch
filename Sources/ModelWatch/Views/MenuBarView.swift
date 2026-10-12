@@ -23,7 +23,7 @@ struct MenuBarView: View {
         }
 
         SettingsLink {
-            Text("Settings...")
+            Text("Settings…")
         }
 
         Divider()

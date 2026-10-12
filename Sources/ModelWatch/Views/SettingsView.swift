@@ -26,6 +26,7 @@ struct SettingsView: View {
                     Text(viewModel.monitoringStatus)
                         .font(.caption)
                         .foregroundStyle(viewModel.hasMonitoringError ? Color.red : Color.secondary)
+                        .accessibilityLabel("Monitoring status: \(viewModel.monitoringStatus)")
                 }
 
                 Section("Approved Applications") {
@@ -48,6 +49,7 @@ struct SettingsView: View {
                                     viewModel.removeApplication(application)
                                 }
                                 .buttonStyle(.borderless)
+                                .accessibilityLabel("Remove \(application.displayName)")
                             }
                         }
                     }
@@ -57,9 +59,10 @@ struct SettingsView: View {
                     }
 
                     if let errorMessage = viewModel.applicationSelectionError ?? importerError {
-                        Text(errorMessage)
+                        Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
                             .font(.caption)
                             .foregroundStyle(.red)
+                            .accessibilityLabel("Error: \(errorMessage)")
                     }
                 }
 
@@ -89,6 +92,9 @@ struct SettingsView: View {
                     Text(viewModel.launchAtLoginStatusMessage)
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .accessibilityLabel(
+                            "Launch at login status: \(viewModel.launchAtLoginStatusMessage)"
+                        )
 
                     if viewModel.launchAtLoginStatus == .requiresApproval {
                         Button("Open Login Items Settings…") {
@@ -97,9 +103,10 @@ struct SettingsView: View {
                     }
 
                     if let error = viewModel.launchAtLoginError {
-                        Text(error)
+                        Label(error, systemImage: "exclamationmark.triangle.fill")
                             .font(.caption)
                             .foregroundStyle(.red)
+                            .accessibilityLabel("Error: \(error)")
                     }
 
                     Toggle("Open dashboard when ModelWatch starts", isOn: $openDashboardAtLaunch)
@@ -138,7 +145,7 @@ struct SettingsView: View {
                 Label("About", systemImage: "info.circle")
             }
         }
-        .frame(width: 520, height: 460)
+        .frame(minWidth: 520, idealWidth: 520, minHeight: 460, idealHeight: 460)
         .scenePadding()
         .fileImporter(
             isPresented: $isChoosingApplication,

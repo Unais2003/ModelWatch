@@ -33,6 +33,7 @@ GitHub, editors, and optional local knowledge tools such as Obsidian.
 
 - [Development setup](engineering/development-setup.md)
 - [Testing](engineering/testing.md)
+- [Performance baseline](engineering/performance.md)
 - [Accessibility and appearance](engineering/accessibility.md)
 - [Distribution](engineering/distribution.md)
 

@@ -61,7 +61,8 @@ Exit criterion: users can maintain their real subscriptions entirely in the app.
 - [ ] Complete the manual VoiceOver, keyboard, and appearance verification matrix.
 - [x] Add app icon, version metadata, and reproducible local app packaging.
 - [ ] Add Developer ID signing, notarization, and the release workflow.
-- Measure launch time, idle energy use, and memory consumption.
+- [x] Establish launch, idle CPU, memory, and relative-power baselines.
+- [ ] Verify energy impact with Instruments Power Profiler on a signed candidate.
 
 Exit criterion: ModelWatch is suitable for a signed beta distribution.
 

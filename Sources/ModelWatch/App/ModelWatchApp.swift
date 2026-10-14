@@ -4,8 +4,13 @@ import SwiftData
 @main
 struct ModelWatchApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    @State private var appContainer = AppContainer.live()
+    @State private var appContainer: AppContainer
     @AppStorage(AppPreferenceKey.showMenuBarStatus) private var showMenuBarStatus = true
+
+    init() {
+        AppPerformanceProbe.markLaunchStarted()
+        _appContainer = State(initialValue: AppContainer.live())
+    }
 
     var body: some Scene {
         WindowGroup(AppConstants.appName, id: AppWindowID.dashboard.rawValue) {

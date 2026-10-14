@@ -7,6 +7,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.regular)
+        AppPerformanceProbe.recordLaunchReady()
 
         guard Self.shouldOpenDashboardAtLaunch() else {
             DispatchQueue.main.async {

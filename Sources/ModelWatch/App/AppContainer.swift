@@ -11,16 +11,33 @@ struct AppContainer {
     let notificationSchedulingService: any NotificationSchedulingService
 
     static func live() -> AppContainer {
+        live(isPerformanceBenchmark: AppPerformanceProbe.isBenchmarkEnabled())
+    }
+
+    static func live(isPerformanceBenchmark: Bool) -> AppContainer {
         do {
-            let modelContainer = try ModelContainer(
-                for: ActivitySession.self,
-                Subscription.self
-            )
+            let modelContainer: ModelContainer
+            if isPerformanceBenchmark {
+                let configuration = ModelConfiguration(isStoredInMemoryOnly: true)
+                modelContainer = try ModelContainer(
+                    for: ActivitySession.self,
+                    Subscription.self,
+                    configurations: configuration
+                )
+            } else {
+                modelContainer = try ModelContainer(
+                    for: ActivitySession.self,
+                    Subscription.self
+                )
+            }
             let context = ModelContext(modelContainer)
 
             let sessionStore = SwiftDataActivitySessionStore(context: context)
             let subscriptionStore = SwiftDataSubscriptionStore(context: context)
-            let trackingPreferencesStore = UserDefaultsActivityTrackingPreferencesStore()
+            let trackingPreferencesStore: any ActivityTrackingPreferencesStore =
+                isPerformanceBenchmark
+                ? InMemoryActivityTrackingPreferencesStore()
+                : UserDefaultsActivityTrackingPreferencesStore()
             let dateProvider = SystemDateProvider()
             let activityTrackingService = WorkspaceActivityTrackingService(
                 sessionStore: sessionStore,

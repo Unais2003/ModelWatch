@@ -50,6 +50,17 @@ ModelWatch process. Additional modes are available:
 optimized bundle without opening it. Both are ad-hoc signed for local integrity;
 neither is Developer ID signed or notarized for distribution.
 
+## Measure local performance
+
+```bash
+./script/measure_performance.sh
+```
+
+This assembles a release app, runs it with isolated in-memory data, and writes a
+JSON launch, idle CPU, resident-memory, and relative-power result to the macOS
+temporary directory. See the [performance baseline](performance.md) for metric
+definitions, environment overrides, and current regression guardrails.
+
 Update `CFBundleShortVersionString` and `CFBundleVersion` in
 `Resources/Info.plist` when preparing a new version. The About tab reads those
 values from the assembled application bundle.

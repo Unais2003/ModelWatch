@@ -7,6 +7,20 @@ protocol ActivityTrackingPreferencesStore: AnyObject {
 }
 
 @MainActor
+final class InMemoryActivityTrackingPreferencesStore: ActivityTrackingPreferencesStore {
+    var isMonitoringEnabled: Bool
+    var trackedApplications: [TrackedApplication]
+
+    init(
+        isMonitoringEnabled: Bool = false,
+        trackedApplications: [TrackedApplication] = []
+    ) {
+        self.isMonitoringEnabled = isMonitoringEnabled
+        self.trackedApplications = trackedApplications
+    }
+}
+
+@MainActor
 final class UserDefaultsActivityTrackingPreferencesStore: ActivityTrackingPreferencesStore {
     private enum Key {
         static let isMonitoringEnabled = "activityTracking.isMonitoringEnabled"

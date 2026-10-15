@@ -7,6 +7,7 @@ short enough to review with the change they describe.
 ## Records
 
 - [ADR-0001: Observe frontmost applications with NSWorkspace](0001-observe-frontmost-app-with-nsworkspace.md)
+- [ADR-0002: Use a scripted Developer ID release workflow for beta](0002-scripted-developer-id-release.md)
 
 ## When to add an ADR
 

@@ -61,6 +61,16 @@ JSON launch, idle CPU, resident-memory, and relative-power result to the macOS
 temporary directory. See the [performance baseline](performance.md) for metric
 definitions, environment overrides, and current regression guardrails.
 
+## Validate release configuration
+
+```bash
+./script/package_release.sh --validate
+```
+
+This validates release metadata and Apple tool availability without requiring
+credentials or creating an artifact. Creating a signed and notarized archive is
+documented in the [beta release workflow](releasing.md).
+
 Update `CFBundleShortVersionString` and `CFBundleVersion` in
 `Resources/Info.plist` when preparing a new version. The About tab reads those
 values from the assembled application bundle.

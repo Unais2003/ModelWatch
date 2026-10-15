@@ -36,6 +36,7 @@ GitHub, editors, and optional local knowledge tools such as Obsidian.
 - [Performance baseline](engineering/performance.md)
 - [Accessibility and appearance](engineering/accessibility.md)
 - [Distribution](engineering/distribution.md)
+- [Beta release workflow](engineering/releasing.md)
 
 ## Documentation conventions
 

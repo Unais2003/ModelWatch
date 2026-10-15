@@ -2,11 +2,12 @@
 
 ## Current status
 
-The repository contains a development script that assembles the Swift Package
-Manager executable into an ad-hoc signed `.app` directory under `dist/`. The
-bundle includes a generated `.icns`, version/build metadata, application
-category, minimum system version, and high-resolution declaration. This is
-useful for local testing but is not a production distribution pipeline.
+Local development uses an ad-hoc signed `.app` assembled under `dist/`. The
+dedicated [beta release workflow](releasing.md) stages that bundle separately,
+applies hardened-runtime Developer ID signing, notarizes and staples it, performs
+Gatekeeper validation, and produces a versioned ZIP and SHA-256 checksum. A real
+release still requires Apple team credentials and manual release-candidate
+verification.
 
 ## Beta release requirements
 
@@ -14,13 +15,13 @@ useful for local testing but is not a production distribution pipeline.
 - [x] Marketing version and build number
 - [x] Application icon and local `.icns` generation
 - [x] Complete local `Info.plist` metadata
-- Required entitlements only
-- Hardened runtime configuration
-- Developer ID signing
-- Apple notarization and stapling
-- Reproducible release archive
-- Documented update and rollback process
-- Privacy information consistent with shipped behavior
+- [x] Required entitlements reviewed; none are currently needed
+- [x] Hardened runtime and Developer ID signing automation
+- [x] Apple notarization and stapling automation
+- [x] Versioned release archive and checksum
+- [x] Documented versioning and rollback process
+- [x] Privacy information consistent with shipped behavior
+- [ ] Produce and validate a release with Apple team credentials
 
 ## Validation checklist
 
@@ -43,11 +44,8 @@ Before distributing a build:
 
 ## Packaging direction
 
-Before beta distribution, prefer an Xcode application project or another
-explicit Apple-platform release configuration capable of managing assets,
-entitlements, signing, archives, and version metadata. Keep Swift packages for
-modular code only when their separation provides clear value.
-
-Choosing a final packaging and update mechanism is a release architecture
-decision and should be recorded as an ADR.
+The beta retains Swift Package Manager and uses a dedicated scripted release
+workflow. This decision and the conditions for reconsidering an Xcode project
+are recorded in
+[ADR-0002](../architecture/decisions/0002-scripted-developer-id-release.md).
 

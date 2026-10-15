@@ -60,7 +60,8 @@ Exit criterion: users can maintain their real subscriptions entirely in the app.
 - [x] Add semantic accessibility labels and adaptive layouts.
 - [ ] Complete the manual VoiceOver, keyboard, and appearance verification matrix.
 - [x] Add app icon, version metadata, and reproducible local app packaging.
-- [ ] Add Developer ID signing, notarization, and the release workflow.
+- [x] Add Developer ID signing, notarization, and the release workflow.
+- [ ] Produce and validate a notarized beta with Apple team credentials.
 - [x] Establish launch, idle CPU, memory, and relative-power baselines.
 - [ ] Verify energy impact with Instruments Power Profiler on a signed candidate.
 

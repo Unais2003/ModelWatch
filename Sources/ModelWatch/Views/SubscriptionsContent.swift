@@ -5,6 +5,8 @@ struct SubscriptionsContent: View {
 
     @State private var editor: SubscriptionEditorPresentation?
     @State private var subscriptionPendingDeletion: Subscription?
+    @State private var focusAfterPresentation: FocusedControl?
+    @FocusState private var focusedControl: FocusedControl?
 
     var body: some View {
         ScrollView {
@@ -20,7 +22,7 @@ struct SubscriptionsContent: View {
             .padding(24)
         }
         .navigationTitle("Subscriptions")
-        .sheet(item: $editor) { presentation in
+        .sheet(item: $editor, onDismiss: restoreFocusAfterPresentation) { presentation in
             NavigationStack {
                 SubscriptionEditorView(
                     subscription: presentation.subscription,
@@ -33,19 +35,25 @@ struct SubscriptionsContent: View {
             isPresented: Binding(
                 get: { subscriptionPendingDeletion != nil },
                 set: { isPresented in
-                    if !isPresented { subscriptionPendingDeletion = nil }
+                    if !isPresented {
+                        subscriptionPendingDeletion = nil
+                        restoreFocusAfterPresentation()
+                    }
                 }
             ),
             presenting: subscriptionPendingDeletion
         ) { subscription in
             Button("Delete", role: .destructive) {
+                focusAfterPresentation = .addSubscription
                 Task {
                     _ = await viewModel.deleteSubscription(subscription)
                     subscriptionPendingDeletion = nil
+                    restoreFocusAfterPresentation()
                 }
             }
             Button("Cancel", role: .cancel) {
                 subscriptionPendingDeletion = nil
+                restoreFocusAfterPresentation()
             }
         } message: { subscription in
             Text("This permanently deletes \(subscription.serviceName).")
@@ -66,13 +74,14 @@ struct SubscriptionsContent: View {
             Spacer()
 
             Button {
-                viewModel.clearSubscriptionMutationError()
-                editor = SubscriptionEditorPresentation(subscription: nil)
+                presentEditor(subscription: nil, returningFocusTo: .addSubscription)
             } label: {
                 Label("Add Subscription", systemImage: "plus")
             }
             .buttonStyle(.borderedProminent)
             .disabled(viewModel.isMutatingSubscription)
+            .focusable()
+            .focused($focusedControl, equals: .addSubscription)
         }
     }
 
@@ -106,7 +115,7 @@ struct SubscriptionsContent: View {
                 systemImage: "creditcard",
                 actionTitle: "Add Subscription"
             ) {
-                editor = SubscriptionEditorPresentation(subscription: nil)
+                presentEditor(subscription: nil, returningFocusTo: .addSubscription)
             }
         case let .failed(message):
             DashboardStatusView(
@@ -198,8 +207,10 @@ struct SubscriptionsContent: View {
 
             Menu {
                 Button("Edit", systemImage: "pencil") {
-                    viewModel.clearSubscriptionMutationError()
-                    editor = SubscriptionEditorPresentation(subscription: subscription)
+                    presentEditor(
+                        subscription: subscription,
+                        returningFocusTo: .subscriptionActions(subscription.id)
+                    )
                 }
 
                 Button(
@@ -217,6 +228,7 @@ struct SubscriptionsContent: View {
                 Divider()
 
                 Button("Delete", systemImage: "trash", role: .destructive) {
+                    focusAfterPresentation = .subscriptionActions(subscription.id)
                     subscriptionPendingDeletion = subscription
                 }
             } label: {
@@ -226,6 +238,8 @@ struct SubscriptionsContent: View {
             .menuStyle(.borderlessButton)
             .accessibilityLabel("Actions for \(subscription.serviceName)")
             .disabled(viewModel.isMutatingSubscription)
+            .focusable()
+            .focused($focusedControl, equals: .subscriptionActions(subscription.id))
         }
         .padding(16)
         .background(.background.secondary)
@@ -241,6 +255,31 @@ struct SubscriptionsContent: View {
             .background(.red.opacity(0.08))
             .clipShape(RoundedRectangle(cornerRadius: 8))
     }
+
+    private func presentEditor(
+        subscription: Subscription?,
+        returningFocusTo control: FocusedControl
+    ) {
+        viewModel.clearSubscriptionMutationError()
+        focusAfterPresentation = control
+        editor = SubscriptionEditorPresentation(subscription: subscription)
+    }
+
+    private func restoreFocusAfterPresentation() {
+        guard let focusAfterPresentation else { return }
+        self.focusAfterPresentation = nil
+
+        Task { @MainActor in
+            // Wait until the sheet or alert releases its separate focus scope.
+            try? await Task.sleep(for: .milliseconds(100))
+            focusedControl = focusAfterPresentation
+        }
+    }
+}
+
+private enum FocusedControl: Hashable {
+    case addSubscription
+    case subscriptionActions(UUID)
 }
 
 private struct SubscriptionEditorPresentation: Identifiable {

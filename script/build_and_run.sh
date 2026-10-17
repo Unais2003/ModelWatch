@@ -30,7 +30,8 @@ case "$MODE" in
     ;;
 esac
 
-if [[ "$MODE" == "release" || "$MODE" == "--release" ]]; then
+if [[ "$MODE" == "release" || "$MODE" == "--release" ||
+      "$MODE" == "verify" || "$MODE" == "--verify" ]]; then
   BUILD_CONFIGURATION="release"
 fi
 
@@ -105,9 +106,53 @@ case "$MODE" in
     /usr/bin/log stream --info --style compact --predicate "subsystem == \"$BUNDLE_ID\""
     ;;
   --verify|verify)
-    open_app
-    sleep 1
-    pgrep -x "$APP_NAME" >/dev/null
+    VERIFY_WORK_DIR="$(mktemp -d "${TMPDIR:-/tmp}/ModelWatch-verify.XXXXXX")"
+    VERIFY_RESULT="$VERIFY_WORK_DIR/launch.json"
+    VERIFY_LOG="$VERIFY_WORK_DIR/app.log"
+    VERIFY_PID=""
+
+    cleanup_verification() {
+      if [[ -n "$VERIFY_PID" ]] && kill -0 "$VERIFY_PID" 2>/dev/null; then
+        kill "$VERIFY_PID" 2>/dev/null || true
+        wait "$VERIFY_PID" 2>/dev/null || true
+      fi
+
+      if [[ -d "$VERIFY_WORK_DIR" ]]; then
+        rm -R "$VERIFY_WORK_DIR"
+      fi
+    }
+
+    trap cleanup_verification EXIT INT TERM
+
+    MODELWATCH_PERFORMANCE_BENCHMARK=1 \
+    MODELWATCH_PERFORMANCE_OUTPUT="$VERIFY_RESULT" \
+    "$APP_BINARY" \
+      -ApplePersistenceIgnoreState YES \
+      -hasCompletedPrivacyOnboarding YES \
+      -openDashboardAtLaunch YES \
+      -showMenuBarStatus NO \
+      >"$VERIFY_LOG" 2>&1 &
+    VERIFY_PID="$!"
+
+    attempt=0
+    while [[ ! -s "$VERIFY_RESULT" ]]; do
+      if ! kill -0 "$VERIFY_PID" 2>/dev/null; then
+        echo "ModelWatch exited during launch verification." >&2
+        sed -n '1,120p' "$VERIFY_LOG" >&2
+        exit 1
+      fi
+
+      attempt=$((attempt + 1))
+      if (( attempt >= 500 )); then
+        echo "Timed out waiting for ModelWatch launch verification." >&2
+        exit 1
+      fi
+
+      sleep 0.02
+    done
+
+    plutil -extract schemaVersion raw "$VERIFY_RESULT" >/dev/null
+    echo "Verified isolated launch for $APP_BUNDLE"
     ;;
   --release|release)
     ;;

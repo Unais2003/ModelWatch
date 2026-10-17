@@ -27,6 +27,7 @@ verification.
 
 Before distributing a build:
 
+- Run `./script/verify_release_candidate.sh` successfully.
 - Build and test using the release toolchain.
 - Confirm the minimum supported macOS version.
 - Verify first launch on a clean user account.

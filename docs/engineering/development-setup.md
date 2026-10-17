@@ -48,7 +48,19 @@ ModelWatch process. Additional modes are available:
 
 `build` assembles a debug bundle without opening it. `--release` assembles an
 optimized bundle without opening it. Both are ad-hoc signed for local integrity;
-neither is Developer ID signed or notarized for distribution.
+neither is Developer ID signed or notarized for distribution. `--verify` performs
+an isolated launch smoke test with in-memory data and terminates only the process
+it started.
+
+## Run the release-candidate preflight
+
+```bash
+./script/verify_release_candidate.sh
+```
+
+This runs the complete test suite, assembles and validates the release bundle,
+and performs an isolated launch smoke test. It does not replace the manual
+accessibility, appearance, lifecycle, or signed-build verification matrix.
 
 ## Measure local performance
 

@@ -39,3 +39,26 @@ Complete this matrix on a release candidate before beta distribution:
 
 Record defects as scoped issues. Do not mark the roadmap verification item
 complete until every workflow above has been exercised on a signed build.
+
+## Automated preflight coverage
+
+Run the release-candidate preflight before the manual matrix:
+
+```bash
+./script/verify_release_candidate.sh
+```
+
+The preflight runs all tests, builds and validates the release bundle, verifies
+its signature structure, and launches it with isolated in-memory data. The
+isolated launch skips onboarding and disables the menu-bar item only for the
+smoke test; it does not read or change the user's ModelWatch data or preferences.
+
+The live accessibility-tree inspection on October 17, 2026 confirmed semantic
+names and values for the dashboard range control, summary cards, empty states,
+subscription actions, and every subscription-editor field. Editor and deletion
+flows explicitly restore keyboard focus to a predictable available control.
+
+Automated inspection does not validate spoken phrasing, visual contrast,
+alternate system appearances, accessibility display settings, or subjective
+reading order. Those checks remain manual and must be performed on the signed
+release candidate.

@@ -32,9 +32,15 @@ must not capture screen pixels or infer usage from screenshots.
 
 ## Notifications
 
-Notification authorization should be requested only after the user enables a
-renewal or budget reminder. Declining authorization must not affect tracking or
-dashboard functionality.
+Notification authorization is requested only after the user enables renewal
+reminders in General Settings. Declining or later revoking authorization turns
+the reminder preference off and must not affect tracking, subscription
+management, or dashboard functionality.
+
+Pending reminders are scheduled and stored by macOS. Their content is generic:
+ModelWatch does not put provider names, prices, or currencies in notification
+titles or bodies. Disabling reminders removes ModelWatch's pending renewal
+requests.
 
 ## Launch at login
 

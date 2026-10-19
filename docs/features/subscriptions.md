@@ -60,7 +60,20 @@ privacy review.
 
 ## Optional reminders
 
-Renewal dates are visible in the subscription list. Notifications remain a
-post-MVP opt-in enhancement. Notification authorization must be requested in
-context when the user enables reminders, not at first launch without
-explanation.
+The General Settings tab provides an off-by-default renewal-reminder toggle.
+ModelWatch requests notification authorization only when the user enables that
+toggle. Declining or later revoking permission turns the preference off without
+affecting subscription management, activity tracking, or analytics.
+
+For each active subscription with a future next-renewal date, ModelWatch
+schedules one local notification for 9:00 AM three calendar days before the
+renewal. Enabling reminders inside that three-day window schedules a near-term
+notification instead, so the known renewal is not silently missed. Inactive
+subscriptions, missing dates, and past dates are excluded. Creating, editing,
+activating, deactivating, deleting, or bulk-deleting subscriptions refreshes the
+pending requests.
+
+Notifications deliberately use generic text. Service names, prices, and
+currencies do not appear in notification content. The stored date represents
+the next renewal, so reminders do not repeat automatically; users update that
+date when the provider supplies a new one.

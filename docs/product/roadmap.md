@@ -50,7 +50,7 @@ Exit criterion: displayed totals can be reproduced from stored session data.
 - [x] Validate cost, ISO currency, service name, and optional renewal date.
 - [x] Display separate totals per currency without implicit conversion.
 - [x] Present renewal dates in the subscription list.
-- [ ] Add opt-in local renewal reminders after the notification UX is specified.
+- [x] Add opt-in local renewal reminders after the notification UX is specified.
 
 Exit criterion: users can maintain their real subscriptions entirely in the app.
 

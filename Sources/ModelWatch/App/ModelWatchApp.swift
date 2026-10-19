@@ -19,7 +19,8 @@ struct ModelWatchApp: App {
                     analyticsService: appContainer.analyticsService,
                     subscriptionService: appContainer.subscriptionService,
                     activityTrackingService: appContainer.activityTrackingService,
-                    dataManagementService: appContainer.dataManagementService
+                    dataManagementService: appContainer.dataManagementService,
+                    renewalReminderService: appContainer.renewalReminderService
                 )
             )
             .onAppear {
@@ -50,7 +51,8 @@ struct ModelWatchApp: App {
                 viewModel: SettingsViewModel(
                     activityTrackingService: appContainer.activityTrackingService,
                     dataManagementService: appContainer.dataManagementService,
-                    launchAtLoginService: appContainer.launchAtLoginService
+                    launchAtLoginService: appContainer.launchAtLoginService,
+                    renewalReminderService: appContainer.renewalReminderService
                 )
             )
         }

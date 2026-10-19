@@ -122,10 +122,40 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+
+                Section("Renewal Reminders") {
+                    Toggle(
+                        "Notify me before subscription renewals",
+                        isOn: Binding(
+                            get: { viewModel.areRenewalRemindersEnabled },
+                            set: { viewModel.setRenewalRemindersEnabled($0) }
+                        )
+                    )
+                    .disabled(viewModel.isUpdatingRenewalReminders)
+
+                    Text(viewModel.renewalReminderStatusMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel(
+                            "Renewal reminder status: \(viewModel.renewalReminderStatusMessage)"
+                        )
+
+                    Text("Reminder notifications are generic and do not show service names or prices.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+
+                    if let error = viewModel.renewalReminderError {
+                        Label(error, systemImage: "exclamationmark.triangle.fill")
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                            .accessibilityLabel("Error: \(error)")
+                    }
+                }
             }
             .formStyle(.grouped)
             .task {
                 viewModel.refreshLaunchAtLoginStatus()
+                viewModel.refreshRenewalReminderStatus()
             }
             .tabItem {
                 Label("General", systemImage: "gearshape")

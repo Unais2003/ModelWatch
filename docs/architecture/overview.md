@@ -10,7 +10,9 @@ The current implementation provides the application shell, privacy-first
 activity monitoring, reproducible analytics, subscription management, and
 local data inspection, export, and deletion. SwiftData-backed services are
 injected through the application container and covered by in-memory store
-integration tests. Renewal notifications remain optional and are not enabled.
+integration tests. Optional local renewal reminders are coordinated through a
+service that owns permission, preference, filtering, and rescheduling rules;
+the system notification adapter remains replaceable in tests.
 
 ## Layers
 
@@ -79,9 +81,10 @@ within the current `Models`, `Services`, `Stores`, `ViewModels`, and `Views`
 groups rather than introducing packages or frameworks prematurely.
 
 Current feature boundaries include workspace observation, activity tracking,
-analytics, subscriptions, and local data management. Future additions should
-continue using focused protocols and composition-root injection instead of
-allowing views to access SwiftData or system services directly.
+analytics, subscriptions, renewal reminders, and local data management. Future
+additions should continue using focused protocols and composition-root
+injection instead of allowing views to access SwiftData or system services
+directly.
 
 ## Concurrency
 

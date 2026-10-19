@@ -85,6 +85,29 @@ final class DashboardSubscriptionManagementTests: XCTestCase {
         XCTAssertEqual(viewModel.subscriptionsState, .loaded)
     }
 
+    func testReminderRefreshFailureDoesNotReportSuccessfulSaveAsFailed() async {
+        let service = MutableSubscriptionServiceStub()
+        let reminderService = FailingRenewalReminderServiceStub()
+        let viewModel = DashboardViewModel(
+            analyticsService: NoOpAnalyticsService(),
+            subscriptionService: service,
+            activityTrackingService: NoOpActivityTrackingService(),
+            dataManagementService: NoOpDataManagementService(),
+            renewalReminderService: reminderService
+        )
+
+        let added = await viewModel.addSubscription(input(
+            serviceName: "ChatGPT",
+            monthlyCost: 20,
+            currencyCode: "USD"
+        ))
+
+        XCTAssertTrue(added)
+        XCTAssertEqual(viewModel.subscriptions.map(\.serviceName), ["ChatGPT"])
+        XCTAssertNotNil(viewModel.subscriptionMutationError)
+        XCTAssertEqual(reminderService.synchronizeCallCount, 1)
+    }
+
     private func makeViewModel(
         subscriptionService: any SubscriptionService
     ) -> DashboardViewModel {
@@ -156,4 +179,18 @@ private final class MutableSubscriptionServiceStub: SubscriptionService {
 
 private enum DashboardSubscriptionTestError: Error {
     case expected
+}
+
+@MainActor
+private final class FailingRenewalReminderServiceStub: RenewalReminderService {
+    var isEnabled: Bool { true }
+    private(set) var synchronizeCallCount = 0
+
+    func setEnabled(_ isEnabled: Bool) async throws {
+    }
+
+    func synchronize() async throws {
+        synchronizeCallCount += 1
+        throw DashboardSubscriptionTestError.expected
+    }
 }

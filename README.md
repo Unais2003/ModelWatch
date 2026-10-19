@@ -18,6 +18,7 @@ later.
 - Daily, weekly, and monthly usage summaries
 - Per-application usage charts and breakdowns
 - Subscription creation, editing, activation, and deletion
+- Opt-in, privacy-safe local subscription renewal reminders
 - Versioned local-data export and confirmed deletion controls
 - Launch-at-login and startup preferences
 - First-run privacy onboarding
@@ -102,12 +103,12 @@ AppKit where native workspace integration is required.
 
 ## Roadmap
 
-The next MVP milestones are:
+The remaining beta-validation milestones are:
 
 - Complete manual VoiceOver, keyboard, and appearance verification
 - Verify activity tracking across screen lock and unlock
-- Measure launch time, idle energy use, and memory consumption
-- Prepare signing, notarization, and beta distribution
+- Validate a signed and notarized beta with Apple team credentials
+- Verify signed-candidate energy impact with Instruments Power Profiler
 
 Provider billing integrations, token analytics, budgets, forecasts, sync, and
 team dashboards are longer-term opportunities rather than current features.

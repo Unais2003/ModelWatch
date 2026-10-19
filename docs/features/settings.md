@@ -13,9 +13,10 @@ off by default, stops automatically when the last approved application is
 removed, and displays persistence failures. A first-run privacy explanation
 describes the collected and excluded data before directing users to Settings.
 The General tab registers launch-at-login through `SMAppService`, reports when
-macOS requires approval, controls whether the dashboard opens at startup, and
-inserts or removes the menu-bar item. The dashboard Settings destination opens
-the same native Settings scene rather than maintaining duplicate controls.
+macOS requires approval, controls whether the dashboard opens at startup,
+inserts or removes the menu-bar item, and manages opt-in local renewal
+reminders. The dashboard Settings destination opens the same native Settings
+scene rather than maintaining duplicate controls.
 
 The Data tab summarizes locally stored activity and subscription records,
 exports a versioned JSON document, and provides confirmed deletion controls.
@@ -35,6 +36,13 @@ and minimum supported macOS version from the application bundle.
 - [x] Launch ModelWatch at login using the supported macOS service API.
 - [x] Define whether the main dashboard opens at launch.
 - [x] Keep menu-bar behavior consistent with the product's operating mode.
+
+### Notifications
+
+- [x] Keep renewal reminders off by default.
+- [x] Explain the behavior before requesting notification authorization.
+- [x] Report denied or revoked permission without affecting other features.
+- [x] Keep notification content free of service names and prices.
 
 ### Data and privacy
 

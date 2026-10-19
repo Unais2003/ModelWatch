@@ -8,7 +8,7 @@ struct AppContainer {
     let subscriptionService: any SubscriptionService
     let dataManagementService: any DataManagementService
     let launchAtLoginService: any LaunchAtLoginService
-    let notificationSchedulingService: any NotificationSchedulingService
+    let renewalReminderService: any RenewalReminderService
 
     static func live() -> AppContainer {
         live(isPerformanceBenchmark: AppPerformanceProbe.isBenchmarkEnabled())
@@ -50,6 +50,20 @@ struct AppContainer {
                 await activityTrackingService.start()
             }
 
+            let renewalReminderService: any RenewalReminderService
+            if isPerformanceBenchmark {
+                renewalReminderService = NoOpRenewalReminderService()
+            } else {
+                renewalReminderService = LocalRenewalReminderService(
+                    subscriptionStore: subscriptionStore,
+                    preferencesStore: UserDefaultsRenewalReminderPreferencesStore(),
+                    notificationService: SystemNotificationSchedulingService(
+                        dateProvider: dateProvider
+                    ),
+                    dateProvider: dateProvider
+                )
+            }
+
             return AppContainer(
                 modelContainer: modelContainer,
                 activityTrackingService: activityTrackingService,
@@ -65,7 +79,7 @@ struct AppContainer {
                     dateProvider: dateProvider
                 ),
                 launchAtLoginService: SystemLaunchAtLoginService(),
-                notificationSchedulingService: NoOpNotificationSchedulingService()
+                renewalReminderService: renewalReminderService
             )
         } catch {
             fatalError("Failed to initialize ModelWatch persistence: \(error)")

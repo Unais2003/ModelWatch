@@ -9,12 +9,14 @@ final class DashboardViewModel {
         static let subscriptions = "Unable to load subscriptions. Please try again."
         static let subscriptionMutation = "Unable to save the subscription. Please try again."
         static let subscriptionDeletion = "Unable to delete the subscription. Please try again."
+        static let renewalReminders = "Renewal reminders could not be refreshed. Subscription tracking remains available."
     }
 
     private let analyticsService: any AnalyticsService
     private let subscriptionService: any SubscriptionService
     private let activityTrackingService: any ActivityTrackingService
     private let dataManagementService: any DataManagementService
+    private let renewalReminderService: any RenewalReminderService
 
     var selectedRange: AnalyticsRange = .day {
         didSet { scheduleAnalyticsLoad() }
@@ -54,12 +56,29 @@ final class DashboardViewModel {
         analyticsService: any AnalyticsService,
         subscriptionService: any SubscriptionService,
         activityTrackingService: any ActivityTrackingService,
-        dataManagementService: any DataManagementService
+        dataManagementService: any DataManagementService,
+        renewalReminderService: any RenewalReminderService
     ) {
         self.analyticsService = analyticsService
         self.subscriptionService = subscriptionService
         self.activityTrackingService = activityTrackingService
         self.dataManagementService = dataManagementService
+        self.renewalReminderService = renewalReminderService
+    }
+
+    convenience init(
+        analyticsService: any AnalyticsService,
+        subscriptionService: any SubscriptionService,
+        activityTrackingService: any ActivityTrackingService,
+        dataManagementService: any DataManagementService
+    ) {
+        self.init(
+            analyticsService: analyticsService,
+            subscriptionService: subscriptionService,
+            activityTrackingService: activityTrackingService,
+            dataManagementService: dataManagementService,
+            renewalReminderService: NoOpRenewalReminderService()
+        )
     }
 
     convenience init(
@@ -186,6 +205,7 @@ final class DashboardViewModel {
             }
 
             applySubscriptions(resolvedSubscriptions)
+            await synchronizeRenewalReminders()
         } catch is CancellationError {
             return
         } catch {
@@ -211,13 +231,23 @@ final class DashboardViewModel {
 
         do {
             try await operation()
-            return true
         } catch let error as LocalizedError {
             subscriptionMutationError = error.errorDescription ?? fallbackMessage
             return false
         } catch {
             subscriptionMutationError = fallbackMessage
             return false
+        }
+
+        await synchronizeRenewalReminders()
+        return true
+    }
+
+    private func synchronizeRenewalReminders() async {
+        do {
+            try await renewalReminderService.synchronize()
+        } catch {
+            subscriptionMutationError = LoadErrorMessage.renewalReminders
         }
     }
 

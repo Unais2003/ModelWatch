@@ -137,11 +137,145 @@ final class WorkspaceActivityTrackingServiceTests: XCTestCase {
         await fixture.service.process(.didWake)
 
         XCTAssertEqual(fixture.store.sessions.count, 2)
+        XCTAssertEqual(
+            fixture.store.sessions[1].applicationBundleIdentifier,
+            cursor.bundleIdentifier
+        )
+        XCTAssertEqual(
+            fixture.service.state,
+            .monitoring(activeApplicationName: cursor.displayName)
+        )
+    }
+
+    func testSessionLockClosesSessionAndUnlockResumesFrontmostApplication() async {
+        let fixture = makeFixture(
+            isEnabled: true,
+            applications: [chatGPT, cursor],
+            frontmostApplication: workspaceApplication(chatGPT)
+        )
+        await fixture.service.start()
+
+        fixture.clock.now = Date(timeIntervalSince1970: 1_300)
+        await fixture.service.process(.sessionResignedActive)
+
+        XCTAssertEqual(fixture.service.state, .inactive)
+        XCTAssertEqual(fixture.store.sessions[0].endedAt, fixture.clock.now)
+
+        fixture.eventSource.frontmostApplication = workspaceApplication(cursor)
+        fixture.clock.now = Date(timeIntervalSince1970: 1_400)
+        await fixture.service.process(.sessionBecameActive)
+
+        XCTAssertEqual(fixture.store.sessions.count, 2)
         XCTAssertEqual(fixture.store.sessions[1].applicationBundleIdentifier, cursor.bundleIdentifier)
         XCTAssertEqual(
             fixture.service.state,
             .monitoring(activeApplicationName: cursor.displayName)
         )
+    }
+
+    func testActivationWhileSessionIsLockedDoesNotStartSession() async {
+        let fixture = makeFixture(
+            isEnabled: true,
+            applications: [chatGPT, cursor],
+            frontmostApplication: workspaceApplication(chatGPT)
+        )
+        await fixture.service.start()
+
+        fixture.clock.now = Date(timeIntervalSince1970: 1_300)
+        await fixture.service.process(.sessionResignedActive)
+        fixture.clock.now = Date(timeIntervalSince1970: 1_350)
+        await fixture.service.process(.applicationActivated(workspaceApplication(cursor)))
+
+        XCTAssertEqual(fixture.store.sessions.count, 1)
+        XCTAssertEqual(fixture.store.sessions[0].endedAt, Date(timeIntervalSince1970: 1_300))
+        XCTAssertEqual(fixture.service.state, .inactive)
+    }
+
+    func testOverlappingSleepAndLockResumeOnlyAfterBothReasonsClear() async {
+        let fixture = makeFixture(
+            isEnabled: true,
+            applications: [chatGPT, cursor],
+            frontmostApplication: workspaceApplication(chatGPT)
+        )
+        await fixture.service.start()
+
+        fixture.clock.now = Date(timeIntervalSince1970: 1_300)
+        await fixture.service.process(.willSleep)
+        await fixture.service.process(.sessionResignedActive)
+
+        fixture.eventSource.frontmostApplication = workspaceApplication(cursor)
+        fixture.clock.now = Date(timeIntervalSince1970: 1_400)
+        await fixture.service.process(.didWake)
+        await fixture.service.process(.applicationActivated(workspaceApplication(cursor)))
+
+        XCTAssertEqual(fixture.store.sessions.count, 1)
+        XCTAssertEqual(fixture.service.state, .inactive)
+
+        fixture.clock.now = Date(timeIntervalSince1970: 1_450)
+        await fixture.service.process(.sessionBecameActive)
+        await fixture.service.process(.sessionBecameActive)
+
+        XCTAssertEqual(fixture.store.sessions.count, 2)
+        XCTAssertEqual(fixture.store.sessions[1].startedAt, fixture.clock.now)
+        XCTAssertEqual(
+            fixture.store.sessions[1].applicationBundleIdentifier,
+            cursor.bundleIdentifier
+        )
+    }
+
+    func testOverlappingLockAndSleepResumeWhenWakeArrivesLast() async {
+        let fixture = makeFixture(
+            isEnabled: true,
+            applications: [chatGPT, cursor],
+            frontmostApplication: workspaceApplication(chatGPT)
+        )
+        await fixture.service.start()
+
+        fixture.clock.now = Date(timeIntervalSince1970: 1_300)
+        await fixture.service.process(.sessionResignedActive)
+        await fixture.service.process(.willSleep)
+
+        fixture.eventSource.frontmostApplication = workspaceApplication(cursor)
+        fixture.clock.now = Date(timeIntervalSince1970: 1_400)
+        await fixture.service.process(.sessionBecameActive)
+
+        XCTAssertEqual(fixture.store.sessions.count, 1)
+        XCTAssertEqual(fixture.service.state, .inactive)
+
+        fixture.clock.now = Date(timeIntervalSince1970: 1_450)
+        await fixture.service.process(.didWake)
+
+        XCTAssertEqual(fixture.store.sessions.count, 2)
+        XCTAssertEqual(fixture.store.sessions[1].startedAt, fixture.clock.now)
+        XCTAssertEqual(
+            fixture.store.sessions[1].applicationBundleIdentifier,
+            cursor.bundleIdentifier
+        )
+    }
+
+    func testDeletingHistoryWhileLockedDoesNotRestartSessionUntilUnlock() async throws {
+        let fixture = makeFixture(
+            isEnabled: true,
+            applications: [chatGPT],
+            frontmostApplication: workspaceApplication(chatGPT)
+        )
+        await fixture.service.start()
+
+        fixture.clock.now = Date(timeIntervalSince1970: 1_300)
+        await fixture.service.process(.sessionResignedActive)
+        fixture.clock.now = Date(timeIntervalSince1970: 1_400)
+
+        try await fixture.service.deleteActivityHistory()
+
+        XCTAssertTrue(fixture.store.sessions.isEmpty)
+        XCTAssertEqual(fixture.service.state, .inactive)
+
+        fixture.clock.now = Date(timeIntervalSince1970: 1_500)
+        await fixture.service.process(.sessionBecameActive)
+
+        XCTAssertEqual(fixture.store.sessions.count, 1)
+        XCTAssertEqual(fixture.store.sessions[0].startedAt, fixture.clock.now)
+        XCTAssertNil(fixture.store.sessions[0].endedAt)
     }
 
     func testPausingMonitoringClosesSessionAndPersistsPreference() async {

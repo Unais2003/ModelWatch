@@ -24,6 +24,7 @@ presents demonstration data as real user activity.
 - [x] Define and persist the user-approved application list.
 - [x] Implement the activity-session state machine.
 - [x] Handle switching, pause/resume, sleep/wake, session changes, and termination.
+- [x] Prevent tracking while overlapping sleep or lock suspensions remain active.
 - [x] Add explicit application selection and monitoring controls.
 - [x] Add first-run privacy onboarding.
 - [ ] Verify lock/unlock behavior across supported macOS versions.

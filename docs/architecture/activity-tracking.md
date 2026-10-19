@@ -49,6 +49,11 @@ tracking session
 The transition that closes an existing session and opens another should be one
 coordinated operation so two sessions cannot overlap.
 
+Sleep and inactive-login-session states are tracked as independent suspension
+reasons. Application activation events are ignored while any reason remains. If
+sleep and lock overlap, tracking resumes only after both wake and session-active
+notifications have arrived.
+
 ## Startup recovery
 
 An unexpected crash can leave a stored session without an end date. On launch,
@@ -76,6 +81,8 @@ but user approval is authoritative.
 - Serialize state transitions on one actor.
 - Persist the closed session before exposing updated analytics.
 - Make pause/resume idempotent.
+- Ignore application activation while sleep or login-session suspension remains.
+- Require every overlapping suspension reason to clear before resuming.
 - Do not create zero-length sessions unless required for diagnostics; normally
   discard them.
 
@@ -98,7 +105,7 @@ Pause/resume must be available without opening the dashboard.
 - Switch tracked application to untracked application
 - Receive a duplicate activation notification
 - Pause and resume repeatedly
-- Sleep/wake and lock/unlock
+- Sleep/wake and lock/unlock, including overlapping and duplicate notifications
 - Quit with an active session
 - Recover an unfinished session after termination
 - Change the approved application list while tracking
@@ -113,6 +120,7 @@ Pause/resume must be available without opening the dashboard.
 
 ## Remaining work
 
-- Verify lock/unlock notification behavior on every supported macOS version.
-- Refresh an open dashboard when a tracked session closes.
+- Complete the
+  [manual lifecycle matrix](../engineering/activity-lifecycle-verification.md)
+  on the minimum and latest supported macOS releases.
 - Exercise the complete lifecycle using a signed application build.

@@ -8,6 +8,11 @@ final class WorkspaceActivityTrackingService: ActivityTrackingService {
         static let persistenceFailure = "Monitoring stopped because activity data could not be saved."
     }
 
+    private enum SuspensionReason: Hashable {
+        case systemSleep
+        case inactiveLoginSession
+    }
+
     private(set) var state = ActivityTrackingState.inactive
     private(set) var isMonitoringEnabled: Bool
     private(set) var trackedApplications: [TrackedApplication]
@@ -20,6 +25,7 @@ final class WorkspaceActivityTrackingService: ActivityTrackingService {
     @ObservationIgnored private var currentSession: ActivitySession?
     @ObservationIgnored private var eventTask: Task<Void, Never>?
     @ObservationIgnored private var hasStarted = false
+    @ObservationIgnored private var suspensionReasons: Set<SuspensionReason> = []
 
     init(
         sessionStore: any ActivitySessionStore,
@@ -120,7 +126,7 @@ final class WorkspaceActivityTrackingService: ActivityTrackingService {
             try await sessionStore.deleteAllSessions()
             analyticsRevision &+= 1
 
-            if isMonitoringEnabled {
+            if isMonitoringEnabled && suspensionReasons.isEmpty {
                 state = .monitoring()
                 try await transition(to: eventSource.frontmostApplication, at: deletionDate)
             } else {
@@ -138,11 +144,14 @@ final class WorkspaceActivityTrackingService: ActivityTrackingService {
         switch event {
         case let .applicationActivated(application):
             await processApplicationActivation(application)
-        case .willSleep, .sessionResignedActive:
-            await suspendMonitoring()
-        case .didWake, .sessionBecameActive:
-            state = .monitoring()
-            await processApplicationActivation(eventSource.frontmostApplication)
+        case .willSleep:
+            await suspendMonitoring(for: .systemSleep)
+        case .sessionResignedActive:
+            await suspendMonitoring(for: .inactiveLoginSession)
+        case .didWake:
+            await resumeMonitoring(after: .systemSleep)
+        case .sessionBecameActive:
+            await resumeMonitoring(after: .inactiveLoginSession)
         case .willTerminate:
             await stopEventProcessingAndCloseSession()
         }
@@ -151,6 +160,7 @@ final class WorkspaceActivityTrackingService: ActivityTrackingService {
     private func beginMonitoring() async {
         eventTask?.cancel()
         eventSource.stop()
+        suspensionReasons.removeAll()
 
         let events = eventSource.events()
 
@@ -175,6 +185,7 @@ final class WorkspaceActivityTrackingService: ActivityTrackingService {
         eventTask?.cancel()
         eventTask = nil
         eventSource.stop()
+        suspensionReasons.removeAll()
 
         do {
             try await closeCurrentSession(at: dateProvider.now)
@@ -184,17 +195,37 @@ final class WorkspaceActivityTrackingService: ActivityTrackingService {
         }
     }
 
-    private func suspendMonitoring() async {
+    private func suspendMonitoring(for reason: SuspensionReason) async {
+        let wasMonitoring = suspensionReasons.isEmpty
+        suspensionReasons.insert(reason)
+
+        guard wasMonitoring else {
+            state = .inactive
+            return
+        }
+
         do {
             try await closeCurrentSession(at: dateProvider.now)
             state = .inactive
         } catch {
             handlePersistenceFailure()
         }
+    }
+
+    private func resumeMonitoring(after reason: SuspensionReason) async {
+        guard suspensionReasons.remove(reason) != nil else { return }
+        guard suspensionReasons.isEmpty else {
+            state = .inactive
+            return
+        }
+
+        state = .monitoring()
+        await processApplicationActivation(eventSource.frontmostApplication)
     }
 
     private func stopEventProcessingAndCloseSession() async {
         eventSource.stop()
+        suspensionReasons.removeAll()
 
         do {
             try await closeCurrentSession(at: dateProvider.now)
@@ -205,6 +236,8 @@ final class WorkspaceActivityTrackingService: ActivityTrackingService {
     }
 
     private func processApplicationActivation(_ application: WorkspaceApplication?) async {
+        guard suspensionReasons.isEmpty else { return }
+
         do {
             try await transition(to: application, at: dateProvider.now)
         } catch {
@@ -275,6 +308,7 @@ final class WorkspaceActivityTrackingService: ActivityTrackingService {
         eventTask = nil
         eventSource.stop()
         currentSession = nil
+        suspensionReasons.removeAll()
         state = .failed(message: Message.persistenceFailure)
     }
 }

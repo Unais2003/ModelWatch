@@ -33,6 +33,8 @@ Before distributing a build:
 - Verify first launch on a clean user account.
 - Verify Light Mode, Dark Mode, keyboard navigation, and VoiceOver labels.
 - Exercise monitoring across app switching, sleep, wake, lock, and restart.
+- Complete the supported-version
+  [activity lifecycle matrix](activity-lifecycle-verification.md).
 - Verify persistence migration from the previous released version.
 - Confirm login-item and notification behavior when enabled and denied.
 - Confirm launch-at-login registration from the signed app in `/Applications`;

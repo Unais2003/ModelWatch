@@ -12,6 +12,7 @@ cost data. Prefer deterministic unit and integration tests over broad UI tests.
 Use fake stores and a controllable clock to cover:
 
 - Activity-tracking state transitions
+- Overlapping sleep, wake, lock, and unlock suspension states
 - Session closure and recovery
 - Range intersection and aggregation
 - Active-session duration

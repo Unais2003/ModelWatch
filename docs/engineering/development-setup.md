@@ -62,6 +62,16 @@ This runs the complete test suite, assembles and validates the release bundle,
 and performs an isolated launch smoke test. It does not replace the manual
 accessibility, appearance, lifecycle, or signed-build verification matrix.
 
+Prepare the candidate-specific manual validation record after the preflight
+passes:
+
+```bash
+./script/prepare_release_validation.sh
+```
+
+The generated file is placed under ignored `dist/validation/` and is meant to
+travel with the exact signed release artifact it documents.
+
 ## Measure local performance
 
 ```bash

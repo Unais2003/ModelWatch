@@ -38,6 +38,7 @@ GitHub, editors, and optional local knowledge tools such as Obsidian.
 - [Accessibility and appearance](engineering/accessibility.md)
 - [Distribution](engineering/distribution.md)
 - [Beta release workflow](engineering/releasing.md)
+- [Release validation template](engineering/release-validation-template.md)
 
 ## Documentation conventions
 

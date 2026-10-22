@@ -75,6 +75,17 @@ dist/releases/ModelWatch-0.1.0-1.zip.sha256
 
 Before sharing the archive:
 
+- Create a candidate-specific evidence record:
+
+    ```bash
+    ./script/prepare_release_validation.sh
+    ```
+
+    The generated record is written under `dist/validation/`, which is ignored
+    by Git because it contains run-specific evidence. Move the completed record
+    into the controlled release storage alongside the notarized archive and
+    checksum.
+
 - Compare the SHA-256 value with the generated checksum file.
 - Extract the ZIP on a separate Mac or clean user account.
 - Confirm Gatekeeper accepts the application without an override.
@@ -82,7 +93,13 @@ Before sharing the archive:
 - Verify monitoring across app switching, lock, sleep, wake, and restart.
 - Run Instruments Power Profiler against the signed candidate.
 - Record the release commit, notarization submission identifier, checksum, and
-  manual verification result in the release notes.
+  manual verification result in the generated validation record and release
+  notes.
+
+The committed
+[release validation template](release-validation-template.md) consolidates the
+accessibility, activity lifecycle, system integration, privacy, and energy
+requirements. It intentionally starts every manual gate incomplete.
 
 ## Versioning and rollback
 

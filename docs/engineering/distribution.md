@@ -28,6 +28,8 @@ verification.
 Before distributing a build:
 
 - Run `./script/verify_release_candidate.sh` successfully.
+- Generate and complete a candidate-specific record with
+  `./script/prepare_release_validation.sh`.
 - Build and test using the release toolchain.
 - Confirm the minimum supported macOS version.
 - Verify first launch on a clean user account.
@@ -44,6 +46,10 @@ Before distributing a build:
 - Profile the signed release candidate with Instruments Power Profiler.
 - Confirm no sample data, secrets, debug logging, or development paths ship.
 - Verify code signature and notarization status.
+
+The validation record belongs with the release archive and checksum in
+controlled release storage. Do not commit completed records containing tester,
+hardware, or internal defect details to the source repository.
 
 ## Packaging direction
 

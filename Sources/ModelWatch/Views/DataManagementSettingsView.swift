@@ -101,10 +101,17 @@ struct DataManagementSettingsView: View {
                 "Activity sessions",
                 value: viewModel.localDataSummary.activitySessionCount.formatted()
             )
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Activity sessions")
+            .accessibilityValue(viewModel.localDataSummary.activitySessionCount.formatted())
+
             LabeledContent(
                 "Subscriptions",
                 value: viewModel.localDataSummary.subscriptionCount.formatted()
             )
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Subscriptions")
+            .accessibilityValue(viewModel.localDataSummary.subscriptionCount.formatted())
         case let .failed(message):
             Label(message, systemImage: "exclamationmark.triangle.fill")
                 .foregroundStyle(.red)

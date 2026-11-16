@@ -17,6 +17,8 @@ and primary workflows must be usable with VoiceOver and a keyboard.
 - Errors and successful operations pair text with semantic symbols instead of
   relying on red or green alone.
 - Destructive and row-specific actions include descriptive labels.
+- Data-summary and About rows expose independent names and values instead of
+  collapsing adjacent `LabeledContent` rows into one VoiceOver element.
 - Onboarding and editor actions use standard cancel and default keyboard
   shortcuts.
 - Surfaces use semantic materials and foreground styles so they follow Light
@@ -57,6 +59,12 @@ The live accessibility-tree inspection on October 17, 2026 confirmed semantic
 names and values for the dashboard range control, summary cards, empty states,
 subscription actions, and every subscription-editor field. Editor and deletion
 flows explicitly restore keyboard focus to a predictable available control.
+
+A follow-up inspection on November 16, 2026 confirmed keyboard sidebar
+navigation, the Settings shortcut, subscription-editor field names, Escape
+dismissal, and editor focus restoration. It also found and corrected merged
+Data and About rows so activity sessions, subscriptions, application, version,
+and minimum macOS each expose a separate accessibility name and value.
 
 Automated inspection does not validate spoken phrasing, visual contrast,
 alternate system appearances, accessibility display settings, or subjective

@@ -168,8 +168,19 @@ struct SettingsView: View {
 
             Form {
                 LabeledContent("Application", value: viewModel.appName)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Application")
+                    .accessibilityValue(viewModel.appName)
+
                 LabeledContent("Version", value: viewModel.versionDescription)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Version")
+                    .accessibilityValue(viewModel.versionDescription)
+
                 LabeledContent("Minimum macOS", value: viewModel.minimumSystemVersion)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Minimum macOS")
+                    .accessibilityValue(viewModel.minimumSystemVersion)
             }
             .formStyle(.grouped)
             .tabItem {

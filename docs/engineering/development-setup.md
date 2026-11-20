@@ -44,6 +44,8 @@ ModelWatch process. Additional modes are available:
 ./script/build_and_run.sh --telemetry
 ./script/build_and_run.sh --verify
 ./script/build_and_run.sh --release
+./script/build_and_run.sh --qa-light
+./script/build_and_run.sh --qa-dark
 ```
 
 `build` assembles a debug bundle without opening it. `--release` assembles an
@@ -51,6 +53,14 @@ optimized bundle without opening it. Both are ad-hoc signed for local integrity;
 neither is Developer ID signed or notarized for distribution. `--verify` performs
 an isolated launch smoke test with in-memory data and terminates only the process
 it started.
+
+The `--qa-light` and `--qa-dark` modes build a release bundle and launch an
+isolated, in-memory instance with an app-only appearance override. Quit any
+existing ModelWatch process first so the intended instance is unambiguous.
+These modes do not change the system appearance, user data, monitoring
+preferences, menu-bar preference, or notification authorization. They support
+local visual inspection but do not replace testing the signed candidate under
+the real system accessibility settings.
 
 ## Run the release-candidate preflight
 

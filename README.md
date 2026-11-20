@@ -70,7 +70,8 @@ To create and open a local development app bundle:
 The generated app at `dist/ModelWatch.app` is intended for local development;
 it is ad-hoc signed, not Developer ID signed or notarized. The script also
 supports `build`, `--debug`, `--logs`, `--telemetry`, `--verify`, and
-`--release` modes.
+`--release` modes. Isolated `--qa-light` and `--qa-dark` modes support visual
+inspection without changing the global macOS appearance or user data.
 
 ## Using ModelWatch
 

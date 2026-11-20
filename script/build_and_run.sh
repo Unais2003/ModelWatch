@@ -18,11 +18,11 @@ SOURCE_ICON="$ROOT_DIR/Resources/AppIcon.png"
 BUNDLE_ID="$(plutil -extract CFBundleIdentifier raw "$SOURCE_INFO_PLIST")"
 
 usage() {
-  echo "usage: $0 [build|run|--debug|--logs|--telemetry|--verify|--release]" >&2
+  echo "usage: $0 [build|run|--debug|--logs|--telemetry|--verify|--release|--qa-light|--qa-dark]" >&2
 }
 
 case "$MODE" in
-  build|run|--debug|debug|--logs|logs|--telemetry|telemetry|--verify|verify|--release|release)
+  build|run|--debug|debug|--logs|logs|--telemetry|telemetry|--verify|verify|--release|release|--qa-light|qa-light|--qa-dark|qa-dark)
     ;;
   *)
     usage
@@ -31,7 +31,9 @@ case "$MODE" in
 esac
 
 if [[ "$MODE" == "release" || "$MODE" == "--release" ||
-      "$MODE" == "verify" || "$MODE" == "--verify" ]]; then
+      "$MODE" == "verify" || "$MODE" == "--verify" ||
+      "$MODE" == "qa-light" || "$MODE" == "--qa-light" ||
+      "$MODE" == "qa-dark" || "$MODE" == "--qa-dark" ]]; then
   BUILD_CONFIGURATION="release"
 fi
 
@@ -86,6 +88,26 @@ echo "Built $APP_BUNDLE ($BUILD_CONFIGURATION, ad-hoc signed)"
 
 open_app() {
   /usr/bin/open -n "$APP_BUNDLE"
+}
+
+open_appearance_qa() {
+  local appearance="$1"
+  local qa_log="${TMPDIR:-/tmp}/ModelWatch-$appearance-qa.log"
+
+  /usr/bin/open \
+    -n \
+    --env "MODELWATCH_PERFORMANCE_BENCHMARK=1" \
+    --env "MODELWATCH_QA_APPEARANCE=$appearance" \
+    -o "$qa_log" \
+    --stderr "$qa_log" \
+    "$APP_BUNDLE" \
+    --args \
+    -ApplePersistenceIgnoreState YES \
+    -hasCompletedPrivacyOnboarding YES \
+    -openDashboardAtLaunch YES \
+    -showMenuBarStatus NO
+
+  echo "Launched isolated $appearance appearance QA (log: $qa_log)"
 }
 
 case "$MODE" in
@@ -155,5 +177,11 @@ case "$MODE" in
     echo "Verified isolated launch for $APP_BUNDLE"
     ;;
   --release|release)
+    ;;
+  --qa-light|qa-light)
+    open_appearance_qa light
+    ;;
+  --qa-dark|qa-dark)
+    open_appearance_qa dark
     ;;
 esac

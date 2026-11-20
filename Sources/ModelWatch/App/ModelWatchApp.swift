@@ -6,9 +6,12 @@ struct ModelWatchApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var appContainer: AppContainer
     @AppStorage(AppPreferenceKey.showMenuBarStatus) private var showMenuBarStatus = true
+    private let appearanceOverride: ColorScheme?
 
     init() {
-        AppPerformanceProbe.markLaunchStarted()
+        let environment = ProcessInfo.processInfo.environment
+        AppPerformanceProbe.markLaunchStarted(environment: environment)
+        appearanceOverride = AppAppearanceOverride.colorScheme(environment: environment)
         _appContainer = State(initialValue: AppContainer.live())
     }
 
@@ -27,6 +30,7 @@ struct ModelWatchApp: App {
                 appDelegate.activityTrackingService = appContainer.activityTrackingService
             }
             .modelContainer(appContainer.modelContainer)
+            .preferredColorScheme(appearanceOverride)
         }
         .defaultSize(width: 980, height: 640)
         .commands {
@@ -43,6 +47,7 @@ struct ModelWatchApp: App {
                     activityTrackingService: appContainer.activityTrackingService
                 )
             )
+            .preferredColorScheme(appearanceOverride)
         }
         .menuBarExtraStyle(.menu)
 
@@ -55,6 +60,7 @@ struct ModelWatchApp: App {
                     renewalReminderService: appContainer.renewalReminderService
                 )
             )
+            .preferredColorScheme(appearanceOverride)
         }
     }
 }

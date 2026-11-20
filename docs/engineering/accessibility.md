@@ -50,6 +50,18 @@ Run the release-candidate preflight before the manual matrix:
 ./script/verify_release_candidate.sh
 ```
 
+Light and Dark Mode can be inspected locally without changing the global macOS
+appearance:
+
+```bash
+./script/build_and_run.sh --qa-light
+./script/build_and_run.sh --qa-dark
+```
+
+These release-build launches use isolated in-memory data and an app-only color
+scheme override. The override is ignored unless benchmark isolation is enabled,
+so normal ModelWatch launches always follow the system appearance.
+
 The preflight runs all tests, builds and validates the release bundle, verifies
 its signature structure, and launches it with isolated in-memory data. The
 isolated launch skips onboarding and disables the menu-bar item only for the
@@ -65,6 +77,12 @@ navigation, the Settings shortcut, subscription-editor field names, Escape
 dismissal, and editor focus restoration. It also found and corrected merged
 Data and About rows so activity sessions, subscriptions, application, version,
 and minimum macOS each expose a separate accessibility name and value.
+
+An isolated release-build inspection on November 20, 2026 confirmed the
+dashboard, subscription editor, and Settings render without visible contrast,
+clipping, or layout defects in both Light and Dark Mode. This evidence covers
+the app-only appearance paths; the full matrix still requires the signed
+release candidate and macOS accessibility display settings.
 
 Automated inspection does not validate spoken phrasing, visual contrast,
 alternate system appearances, accessibility display settings, or subjective
